@@ -35,6 +35,71 @@ public  class MyMath {
     public static double myMult (double firstNumber, double secondNumber){
         return firstNumber * secondNumber;
     }
+
+    //********************** Method max *********************//
+    public static int myMax(int num1, int num2){
+        if (num1>=num2){
+            return num1;
+        }
+        return num2;
+    }
+    public static double myMax(double num1, double num2){
+        if (num1>=num2){
+            return num1;
+        }
+        return num2;
+    }
+    public static int myMaxFromArray(int [] numbers){
+        int result = numbers[0];
+        for (int i = 1; i<numbers.length; i++){
+            if (numbers[i]>=result){
+                result= numbers[i];
+            }
+        }
+        return result;
+    }
+    public static double myMaxFromArray(double [] numbers){
+        double result = numbers[0];
+        for (int i = 1; i<numbers.length; i++){
+            if (numbers[i]>=result){
+                result= numbers[i];
+            }
+        }
+        return result;
+    }
+
+    //********************** Method min *********************//
+    public static int myMin(int num1, int num2){
+        if (num1<=num2){
+            return num1;
+        }
+        return num2;
+    }
+    public static double myMin(double num1, double num2){
+        if (num1<=num2){
+            return num1;
+        }
+        return num2;
+    }
+    public static int myMinFromArray(int [] numbers){
+        int result = numbers[0];
+        for (int i = 1; i<numbers.length; i++){
+            if (numbers[i]<=result){
+                result= numbers[i];
+            }
+        }
+        return result;
+    }
+    public static double myMinFromArray(double [] numbers){
+        double result = numbers[0];
+        for (int i = 1; i<numbers.length; i++){
+            if (numbers[i]<=result){
+                result= numbers[i];
+            }
+        }
+        return result;
+    }
+
     //********************** Method of raising to a power *********************//
     public static double myRaiseToPower (double number, int degree ){
         double result=number;
@@ -106,5 +171,6 @@ public  class MyMath {
             return String.format("First root is: %.2f Second root is: %.2f", x1, x2);
         }
     }
+
 
 }
