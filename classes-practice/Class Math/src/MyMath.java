@@ -188,12 +188,13 @@ public  class MyMath {
     //**** Exemple: 3x^2 -14x-5=0 ------> a=3, b=-14 c=-5*******************//
     public static String myQuadEquation (int a, int b, int c){
         double discriminant= MyMath.myRaiseToPower(b,2) - 4*a*c;
-        double sqrFromDiscriminant = MyMath.mySqrtNewton(discriminant);
         double x1;
         double x2;
         if( discriminant < 0){
             return "There are no real roots!";
-        } else if (discriminant == 0){
+        }
+        double sqrFromDiscriminant = MyMath.mySqrtNewton(discriminant);
+        if (discriminant == 0){
             x1 = (double) (-b)/(2*a);
             return "The root is this:  " +x1;
         }else {
