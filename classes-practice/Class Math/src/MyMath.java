@@ -1,4 +1,6 @@
 import java.math.BigInteger;
+import java.util.LinkedList;
+import java.util.List;
 
 public  class MyMath {
     //********************** Addition methods *********************//
@@ -58,6 +60,7 @@ public  class MyMath {
         }
         return result;
     }
+
     public static double myMaxFromArray(double [] numbers){
         double result = numbers[0];
         for (int i = 1; i<numbers.length; i++){
@@ -66,6 +69,34 @@ public  class MyMath {
             }
         }
         return result;
+    }
+    //********************** Method average from array  *********************//
+    public static double myAverage(double[] array){
+        if (array.length==0){
+            return 0.0;
+        }
+        double summ =0;
+        for(int i =0;i<array.length;i++){
+            summ+=array[i];
+        }
+        return summ/array.length;
+
+    }
+    //*********************** Decimal to binary ***********************//
+    public static int myDecToBi(int number){
+        List<Integer> resultList = new LinkedList<>();
+        int rest = number;
+
+        while (rest>0) {
+            resultList.add(rest % 2);
+            rest = rest / 2;
+        }
+        StringBuilder total = new StringBuilder();
+        for (int i =resultList.size()-1;i>=0; i--){
+            total.append(resultList.get(i));
+        }
+        String result= total.toString();
+        return Integer.parseInt(result);
     }
 
     //********************** Method min *********************//
