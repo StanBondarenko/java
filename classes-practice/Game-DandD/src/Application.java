@@ -2,6 +2,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Application {
+
     public static void main(String[] arg) {
 
         // Scanner for reading user input from console
@@ -145,13 +146,8 @@ public class Application {
                 System.out.println("🤝 It's a tie! Let's roll again!");
                 continue;
             }
-
-            // Decide who goes first
-            if (gamer1D20 > gamer2D20) {
-                gamer1.setGoFirst(true);
-            } else {
-                gamer2.setGoFirst(true);
-            }
+            // Use Method Who goes first
+            whoGoesFirst(gamer1,gamer2,gamer1D20,gamer2D20);
 
             System.out.println("\n🏆 The bravest is —> " +
                     (gamer1D20 > gamer2D20 ? gamer1.getKlass().getName() + " " + gamer1.getName()
@@ -176,33 +172,15 @@ public class Application {
                 System.out.println("🎯 " + gamer1.getName() + " rolled: " + d20);
 
                 // Calculate hit power (roll + strength - (enemy armor + dexterity))
-                int powerOfHit = (d20 + gamer1.getKlass().getStrength()) -
-                        (gamer2.getKlass().getArmor() + gamer2.getKlass().getDexterity());
-
-                // If damage > 0, apply it
-                if (powerOfHit > 0) {
-                    System.out.println("💥 HIT! " + gamer2.getName() + " takes " + powerOfHit + " damage!");
-                    gamer2.getKlass().setHealth(gamer2.getKlass().getHealth() - powerOfHit);
-
-                    System.out.println("❤️ " + gamer2.getName() + " now has " +
-                            gamer2.getKlass().getHealth() + " HP\n👉 Press ENTER to continue...");
-                    gamer1.setGoFirst(false);
+                countDamage(gamer1, gamer2, d20, scr);
+                // Check if player2 is dead
+                if (gamer2.getKlass().getHealth() <= 0) {
+                    System.out.println("🏆 WINNER!!! 🎉🎉🎉 The winner is -> " +
+                            gamer1.getName() + " 🏅\nPress ENTER to exit");
                     scr.nextLine();
-
-                    // Check if player2 is dead
-                    if (gamer2.getKlass().getHealth() <= 0) {
-                        System.out.println("🏆 WINNER!!! 🎉🎉🎉 The winner is -> " +
-                                gamer1.getName() + " 🏅\nPress ENTER to exit");
-                        scr.nextLine();
-                        break;
-                    }
-                } else {
-                    System.out.println("❌ Miss! " + gamer2.getName() + " takes 0 damage.");
-                    System.out.println("❤️ " + gamer2.getName() + " still has " +
-                            gamer2.getKlass().getHealth() + " HP\n👉 Press ENTER to continue...");
-                    gamer1.setGoFirst(false);
-                    scr.nextLine();
+                    break;
                 }
+
             } else {
                 // === Player 2 attacks ===
                 System.out.println("🎲 " + gamer2.getKlass().getName() + " " + gamer2.getName() +
@@ -210,35 +188,17 @@ public class Application {
                 scr.nextLine();
                 int d20 = random.nextInt(20) + 1;
                 System.out.println("🎯 " + gamer2.getName() + " rolled: " + d20);
-
-                int powerOfHit = (d20 + gamer2.getKlass().getStrength()) -
-                        (gamer1.getKlass().getArmor() + gamer1.getKlass().getDexterity());
-
-                if (powerOfHit > 0) {
-                    System.out.println("💥 HIT! " + gamer1.getName() + " takes " + powerOfHit + " damage!");
-                    gamer1.getKlass().setHealth(gamer1.getKlass().getHealth() - powerOfHit);
-
-                    System.out.println("❤️ " + gamer1.getName() + " now has " +
-                            gamer1.getKlass().getHealth() + " HP\n👉 Press ENTER to continue...");
-                    gamer1.setGoFirst(true);
-                    scr.nextLine();
-
+                    countDamage(gamer2,gamer1,d20,scr);
                     if (gamer1.getKlass().getHealth() <= 0) {
                         System.out.println("🏆 WINNER!!! 🎉🎉🎉 The winner is -> " +
                                 gamer2.getName() + " 🏅\nPress ENTER to exit");
                         scr.nextLine();
                         break;
                     }
-                } else {
-                    System.out.println("❌ Miss! " + gamer1.getName() + " takes 0 damage.");
-                    System.out.println("❤️ " + gamer1.getName() + " still has " +
-                            gamer1.getKlass().getHealth() + " HP\n👉 Press ENTER to continue...");
-                    gamer1.setGoFirst(true);
-                    scr.nextLine();
-                }
             }
         }
     }
+
 
     // ========================== UTILITY METHODS ==========================
 
@@ -256,4 +216,34 @@ public class Application {
     public static boolean containsGaps(String text) {
         return text.matches("\\s.*");
     }
+    // Count damage
+    public static void countDamage(Character attaker, Character defender, int diceRoll,Scanner scr){
+        int powerOfHit = (diceRoll +attaker.getKlass().getStrength()) -
+                (defender.getKlass().getArmor() + defender.getKlass().getDexterity());
+        if (powerOfHit > 0) {
+            System.out.println("💥 HIT! " +defender.getName() + " takes " + powerOfHit + " damage!");
+            defender.getKlass().setHealth(defender.getKlass().getHealth() - powerOfHit);
+
+            System.out.println("❤️ " + defender.getName() + " now has " +
+                    defender.getKlass().getHealth() + " HP\n👉 Press ENTER to continue...");
+            attaker.setGoFirst(false);
+            scr.nextLine();
+        } else {
+            System.out.println("❌ Miss! " + defender.getName() + " takes 0 damage.");
+            System.out.println("❤️ " + defender.getName() + " still has " +
+                    defender.getKlass().getHealth() + " HP\n👉 Press ENTER to continue...");
+            attaker.setGoFirst(false);
+            scr.nextLine();
+        }
+    }
+    public static void whoGoesFirst(Character g1,Character g2,int roll1, int roll2){
+        // Decide who goes first
+        if (roll1 > roll2) {
+            g1.setGoFirst(true);
+        } else {
+            g2.setGoFirst(true);
+        }
+
+    }
+
 }
