@@ -2,14 +2,16 @@ package ClassesDOJO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 public class Loan {
     private long loanId;
     private long readerId;
     private long copyId;
-    private LocalDateTime loaned_at;
-    private LocalDateTime dueAt;
-    private LocalDateTime returnedAt;
+    private OffsetDateTime loanedAt;
+    private OffsetDateTime dueAt;
+    private OffsetDateTime returnedAt;
 
     public Loan(){}
 
@@ -37,27 +39,27 @@ public class Loan {
         this.copyId = copyId;
     }
 
-    public LocalDateTime getLoaned_at() {
-        return loaned_at;
+    public OffsetDateTime getLoanedAt() {
+        return loanedAt;
     }
 
-    public void setLoaned_at(LocalDateTime loaned_at) {
-        this.loaned_at = loaned_at;
+    public void setLoanedAt(OffsetDateTime loanedAt) {
+        this.loanedAt = loanedAt;
     }
 
-    public LocalDateTime getDueAt() {
+    public OffsetDateTime getDueAt() {
         return dueAt;
     }
 
-    public void setDueAt(LocalDateTime dueAt) {
+    public void setDueAt(OffsetDateTime dueAt) {
         this.dueAt = dueAt;
     }
 
-    public LocalDateTime getReturnedAt() {
+    public OffsetDateTime getReturnedAt() {
         return returnedAt;
     }
 
-    public void setReturnedAt(LocalDateTime returnedAt) {
+    public void setReturnedAt(OffsetDateTime returnedAt) {
         this.returnedAt = returnedAt;
     }
 }

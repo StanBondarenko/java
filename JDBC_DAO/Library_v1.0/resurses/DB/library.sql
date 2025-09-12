@@ -22,7 +22,7 @@ CREATE TABLE genre (
 CREATE TABLE book (
   book_id      serial PRIMARY KEY,
   title        varchar(100) NOT NULL,
-  publish_date date         NULL,
+  publish_date date         NOT NULL,
   count_stock  int          NOT NULL DEFAULT 0,
   CONSTRAINT chk_book_stock_nonneg CHECK (count_stock >= 0)
 );
