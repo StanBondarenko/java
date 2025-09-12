@@ -1,0 +1,130 @@
+@startuml
+class System.Application {
++ {static} void main(String[])
++ void run()
+}
+
+class JDBCandDAO.JdbcAuthorDao {
+- JdbcTemplate jdbcTemplate
+}
+
+abstract class RowMappers.AuthorRowMapper {
++ Author mapRow(ResultSet,int)
+}
+
+interface InterfaceDAO.AuthorDao {
+}
+interface System.Interfaces.Output {
+~ void print(String)
+~ void printError(String)
+}
+
+interface System.Interfaces.Input {
+~ String getInput()
+}
+
+class Exсaption.DaoExcaption {
+}
+interface InterfaceDAO.GenreDao {
+}
+class ClassesDOJO.Author {
+- long id
+- String authorFirstName
+- String authorLastName
+~ LocalDate birthday
+~ LocalDate deathDate
++ long getId()
++ void setId(long)
++ String getAuthorFirstName()
++ void setAuthorFirstName(String)
++ String getAuthorLastName()
++ void setAuthorLastName(String)
++ LocalDate getBirthday()
++ void setBirthday(LocalDate)
++ LocalDate getDeathDate()
++ void setDeathDate(LocalDate)
+}
+
+
+class JDBCandDAO.JdbcGenreDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class JDBCandDAO.JdbcReaderDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class System.SystemInput {
+- Scanner scr
++ String getInput()
+}
+
+
+interface InterfaceDAO.ReaderDao {
+}
+class System.SystemOutput {
++ void print(String)
++ void printError(String)
+}
+
+class JDBCandDAO.JdbcBookDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class ClassesDOJO.Genre {
+- long id
+- String genreName
++ long getId()
++ void setId(long)
++ String getGenreName()
++ void setGenreName(String)
+}
+
+
+interface InterfaceDAO.BookDao {
+}
+class ClassesDOJO.Reader {
+- long id
+- String readerFirstName
+- String readerLastName
+- String address
+- String phoneNumber
+- String eMail
++ long getId()
++ void setId(long)
++ String getReaderFirstName()
++ void setReaderFirstName(String)
++ String getReaderLastName()
++ void setReaderLastName(String)
++ String getAddress()
++ void setAddress(String)
++ String getPhoneNumber()
++ void setPhoneNumber(String)
++ String geteMail()
++ void seteMail(String)
+}
+
+
+class ClassesDOJO.Book {
+- long id
+- String title
+- LocalDate publishDate
+- int countStock
++ long getId()
++ void setId(long)
++ String getTitle()
++ void setTitle(String)
++ LocalDate getPublishDate()
++ void setPublishDate(LocalDate)
++ int getCountStock()
++ void setCountStock(int)
+}
+
+
+
+
+javax.swing.tree.RowMapper <|.. RowMappers.AuthorRowMapper
+Exсaption.Exception <|-- Exсaption.DaoExcaption
+System.Interfaces.Input <|.. System.SystemInput
+System.Interfaces.Output <|.. System.SystemOutput
+@enduml

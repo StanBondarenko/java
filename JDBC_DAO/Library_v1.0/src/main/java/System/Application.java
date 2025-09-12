@@ -1,4 +1,4 @@
-package com.practice;
+package System;
 
 public class Application {
     public static void main(String[] str){
