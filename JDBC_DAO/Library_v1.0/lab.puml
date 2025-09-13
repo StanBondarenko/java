@@ -1,0 +1,184 @@
+@startuml
+class System.Application {
+- Output out
++ {static} void main(String[])
++ void run()
+}
+
+
+class JDBCandDAO.JdbcAuthorDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class RowMappers.BookRowMapper {
++ Book mapRow(ResultSet,int)
+}
+
+interface InterfaceDAO.LoanDao {
+}
+interface System.Interfaces.Output {
+~ void print(String)
+~ void printError(String)
+~ void printMenu()
+~ void printLogo()
+}
+
+interface InterfaceDAO.AuthorDao {
+}
+class JDBCandDAO.JdbcGenreDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class RowMappers.LoanRowMapper {
++ Loan mapRow(ResultSet,int)
+}
+
+class System.SystemInput {
+- Scanner scr
++ String getInput()
+}
+
+
+class RowMappers.GenreRowMapper {
++ Genre mapRow(ResultSet,int)
+}
+
+class ClassesDOJO.Genre {
+- long id
+- String genreName
++ long getId()
++ void setId(long)
++ String getGenreName()
++ void setGenreName(String)
+}
+
+
+interface InterfaceDAO.BookDao {
+}
+class ClassesDOJO.Reader {
+- long id
+- String readerFirstName
+- String readerLastName
+- String address
+- String phoneNumber
+- String eMail
++ long getId()
++ void setId(long)
++ String getReaderFirstName()
++ void setReaderFirstName(String)
++ String getReaderLastName()
++ void setReaderLastName(String)
++ String getAddress()
++ void setAddress(String)
++ String getPhoneNumber()
++ void setPhoneNumber(String)
++ String geteMail()
++ void seteMail(String)
+}
+
+
+abstract class RowMappers.AuthorRowMapper {
++ Author mapRow(ResultSet,int)
+}
+
+interface System.Interfaces.Input {
+~ String getInput()
+}
+
+class Exсaption.DaoExcaption {
+}
+interface InterfaceDAO.GenreDao {
+}
+class ClassesDOJO.Author {
+- long id
+- String authorFirstName
+- String authorLastName
+~ LocalDate birthday
+~ LocalDate deathDate
++ long getId()
++ void setId(long)
++ String getAuthorFirstName()
++ void setAuthorFirstName(String)
++ String getAuthorLastName()
++ void setAuthorLastName(String)
++ LocalDate getBirthday()
++ void setBirthday(LocalDate)
++ LocalDate getDeathDate()
++ void setDeathDate(LocalDate)
+}
+
+
+class ClassesDOJO.Loan {
+- long loanId
+- long readerId
+- long copyId
+- OffsetDateTime loanedAt
+- OffsetDateTime dueAt
+- OffsetDateTime returnedAt
++ long getLoanId()
++ void setLoanId(long)
++ long getReaderId()
++ void setReaderId(long)
++ long getCopyId()
++ void setCopyId(long)
++ OffsetDateTime getLoanedAt()
++ void setLoanedAt(OffsetDateTime)
++ OffsetDateTime getDueAt()
++ void setDueAt(OffsetDateTime)
++ OffsetDateTime getReturnedAt()
++ void setReturnedAt(OffsetDateTime)
+}
+
+
+class JDBCandDAO.JdbcReaderDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class RowMappers.ReaderRowMapper {
++ Reader mapRow(ResultSet,int)
+}
+
+interface InterfaceDAO.ReaderDao {
+}
+class System.SystemOutput {
++ void print(String)
++ void printError(String)
++ void printMenu()
++ void printLogo()
+}
+
+class JDBCandDAO.JdbcLoanDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class JDBCandDAO.JdbcBookDao {
+- JdbcTemplate jdbcTemplate
+}
+
+class ClassesDOJO.Book {
+- long id
+- String title
+- LocalDate publishDate
+- int countStock
++ long getId()
++ void setId(long)
++ String getTitle()
++ void setTitle(String)
++ LocalDate getPublishDate()
++ void setPublishDate(LocalDate)
++ int getCountStock()
++ void setCountStock(int)
+}
+
+
+
+
+org.springframework.jdbc.core.RowMapper <|.. RowMappers.BookRowMapper
+org.springframework.jdbc.core.RowMapper <|.. RowMappers.LoanRowMapper
+System.Interfaces.Input <|.. System.SystemInput
+org.springframework.jdbc.core.RowMapper <|.. RowMappers.GenreRowMapper
+org.springframework.jdbc.core.RowMapper <|.. RowMappers.AuthorRowMapper
+Exсaption.Exception <|-- Exсaption.DaoExcaption
+org.springframework.jdbc.core.RowMapper <|.. RowMappers.ReaderRowMapper
+System.Interfaces.Output <|.. System.SystemOutput
+@enduml
