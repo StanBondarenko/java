@@ -9,7 +9,6 @@ public class SystemInput implements Input {
     public SystemInput(){this.scr = new Scanner(in);}
     @Override
     public String getInput() {return scr.nextLine();}
-
     @Override
     public String promtChoice(String message) {
         System.out.println(message);
