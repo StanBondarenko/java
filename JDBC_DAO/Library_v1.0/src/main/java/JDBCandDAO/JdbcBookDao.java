@@ -1,7 +1,9 @@
 package JDBCandDAO;
 
+import InterfaceDAO.BookDao;
 import RowMappers.BookRowMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
@@ -12,14 +14,16 @@ import ClassesDOJO.Book;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import Exception.DaoException;
 
-public class JdbcBookDao {
+public class JdbcBookDao implements BookDao {
     private final JdbcTemplate jdbcTemplate;
     private final BookRowMapper mapper = new BookRowMapper();
     public JdbcBookDao(DataSource dataSource){
         jdbcTemplate= new JdbcTemplate(dataSource);
     }
 
-    public List<Book> allBooks() {
+    //************************ Methods
+    @Override
+    public List<Book> getAllBooks() {
         List<Book> listBook = new ArrayList<>();
         String query = """
                 SELECT *
@@ -30,6 +34,51 @@ public class JdbcBookDao {
             throw new DaoException("Unable to connect to server or database", e);
         }catch (DataIntegrityViolationException e) {
             throw new DaoException("Data Integrity Violation", e);
+        }
+    }
+    @Override
+    public List<Book> getBookByTile(String title) {
+        if (title.isEmpty()){
+            return null;
+        }
+        title= "%"+title+"%";
+        String query= """
+                SELECT *
+                FROM book
+                WHERE title ILIKE ?""";
+        try {
+            return jdbcTemplate.query(query,mapper,title);
+        }catch (EmptyResultDataAccessException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        } catch (NullPointerException e){
+            throw new DaoException("Null ", e);
+        }
+
+    }
+
+    @Override
+    public List<Book> getBookByAuthorFullName(String firstName, String lastName) {
+        firstName = "%"+firstName+"%";
+        lastName = "%"+lastName+"%";
+        String query= """
+                SELECT b.book_id, b.title, b.publish_date, b.count_stock
+                	FROM book b
+                	JOIN author_book USING(book_id)
+                	JOIN author USING(author_id)
+                	WHERE author_id IN (
+                		SELECT author_id
+                		FROM author a
+                		WHERE a.first_name ILIKE ? AND a.last_name ILIKE ?);""";
+        try {
+            return jdbcTemplate.query(query,mapper,firstName,lastName);
+        }catch (EmptyResultDataAccessException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        } catch (NullPointerException e){
+            throw new DaoException("Null ", e);
         }
     }
 
