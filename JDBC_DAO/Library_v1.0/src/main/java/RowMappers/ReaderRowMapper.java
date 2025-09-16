@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ReaderRowMapper implements RowMapper {
+public class ReaderRowMapper implements RowMapper<Reader> {
     @Override
     public Reader mapRow(ResultSet rs, int rowNum) throws SQLException {
     Reader reader = new Reader();

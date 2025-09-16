@@ -1,6 +1,9 @@
 package System;
 
+import ClassesDOJO.Book;
 import System.Interfaces.Output;
+
+import java.util.Objects;
 import java.util.Scanner;
 import static java.lang.System.in;
 
@@ -12,6 +15,10 @@ public class SystemOutput implements Output {
     @Override
     public void printError(String message){
         System.err.println("Error: "+message);
+    }
+    @Override
+    public void printBook(Book o) {
+        System.out.println(o.toString());
     }
     @Override
     public void printLogo(){
@@ -57,6 +64,7 @@ public class SystemOutput implements Output {
         return numOfString;
 
     }
+    @Override
     public int printBookMenu(){
         int numOfString = 7;
         String menu= """
@@ -70,5 +78,4 @@ public class SystemOutput implements Output {
         System.out.println(menu);
         return numOfString;
     }
-
 }

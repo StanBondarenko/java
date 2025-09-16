@@ -42,4 +42,11 @@ public class Book {
     public void setCountStock(int countStock) {
         this.countStock = countStock;
     }
+    @Override
+    public  String toString(){
+        return "Book ID->  "+this.id+
+                " Title->  "+this.title+
+                " Publish Date->  "+publishDate+
+                " Left in Stock->  "+countStock;
+    }
 }
