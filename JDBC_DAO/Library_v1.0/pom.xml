@@ -23,28 +23,25 @@
     </repositories>
 
         <dependencies>
-            <!-- Spring JDBC (RowMapper, JdbcTemplate и пр.) -->
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
                 <version>5.3.34</version>
             </dependency>
 
-            <!-- Spring Core (часто подтягивается автоматически, но лучше указать явно) -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>5.3.34</version>
             </dependency>
 
-            <!-- PostgreSQL JDBC Driver -->
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>42.7.3</version>
             </dependency>
 
-            <!-- Apache Commons DBCP2 (пул соединений, если хочешь использовать BasicDataSource) -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-dbcp2</artifactId>

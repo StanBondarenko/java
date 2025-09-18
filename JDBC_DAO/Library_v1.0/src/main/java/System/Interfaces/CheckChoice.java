@@ -1,5 +1,9 @@
 package System.Interfaces;
 
 public interface CheckChoice {
-    boolean isCorrect(String input, int maxNum);
+    boolean isCorrectNavigation(String input, int maxNum);
+    boolean isCorrectDateFormat(String date);
+    boolean isCorrectInt(String num);
+    boolean isYesOrNo(String message);
+
 }

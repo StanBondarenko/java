@@ -1,14 +1,17 @@
 package System;
 
 import ClassesDOJO.Book;
+import ClassesDOJO.Genre;
 import InterfaceDAO.BookDao;
+import InterfaceDAO.GenreDao;
 import JDBCandDAO.JdbcBookDao;
+import JDBCandDAO.JdbcGenreDao;
 import System.Interfaces.CheckChoice;
 import System.Interfaces.Input;
 import System.Interfaces.Output;
-import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.util.List;
+import java.util.ListIterator;
 
 public class LibraryController {
     Output out = new SystemOutput();
@@ -16,6 +19,8 @@ public class LibraryController {
     CheckChoice check = new InputCheck();
     Connector connect = new Connector();
     BookDao jdbcBookDao = new JdbcBookDao(connect.getDataSource());
+    GenreDao jdbcGenreDao = new JdbcGenreDao(connect.getDataSource());
+    BlankMaker blank = new BlankMaker();
 
     public void mainMenuNavigation(){
         out.printLogo();
@@ -26,16 +31,15 @@ public class LibraryController {
                 String userNum = null;
                 int numOfString = out.printMainMenu();
                 userNum = input.promtChoice("Enter number>>>>");
-                if (check.isCorrect(userNum, numOfString)) {
+                if (check.isCorrectNavigation(userNum, numOfString)) {
                     if(userNum.equals("5")){
                         isSubMain=false;
                         isMain=false;
                     }else {
                         isSubMain = navigationMain(userNum);
-
                     }
                 } else {
-                    out.printError("❌ ERROR: Invalid input!");
+                    out.printError("Invalid input!");
                 }
             }
 
@@ -49,10 +53,10 @@ public class LibraryController {
                 while (isSomethingElse) {
                     int numOfString = out.printBookMenu();
                     String choice = input.promtChoice("Enter number>>>>");
-                    if (check.isCorrect(choice, numOfString)) {
+                    if (check.isCorrectNavigation(choice, numOfString)) {
                         isSomethingElse=navigationBook(choice);
                     } else {
-                        out.printError("❌ ERROR: Invalid input!");
+                        out.printError("Invalid input!");
                     }
                 }
             }
@@ -80,35 +84,23 @@ public class LibraryController {
                 for (Book book: listBook){
                     out.printBook(book);
                 }
-
             }
             case "2"->{
                 String userTitle= input.promtChoice("Please, Enter title >>>>");
-                List<Book> books= jdbcBookDao.getBookByTile(userTitle);
-                if (books == null){
-                    out.printError("You have entered an empty query!");
-                } else  if (books.isEmpty()) {
-                    out.printError("No books with this title found.");
-                }else {
-                    for (Book book: books) {
-                        out.printBook(book);
-                    }
-                }
+                out.printBook(jdbcBookDao.getBookByTile(userTitle));
             }
             case "3"->{
                 String firstName = input.promtChoice("Please enter the author's  first name>>>>");
                 String lastName = input.promtChoice("Please enter the author's last name>>>>");
-                List<Book> books=jdbcBookDao.getBookByAuthorFullName(firstName,lastName);
-                if (books.isEmpty()) {
-                    out.printError("No books with this title found.");
-                }else {
-                    for (Book book : books) {
-                        out.printBook(book);
-                    }
-                }
+                out.printBook(jdbcBookDao.getBookByAuthorFullName(firstName,lastName));
             }
             case "4"->{
-
+                Book newBook =jdbcBookDao.createBook(blank.takeInfoForNewBook());
+                List<Genre> genres=blank.takeInfoForGenre(jdbcGenreDao.getAllGenre());
+                deleteGenreIfEqual(genres);
+                for (Genre g : genres){
+                    jdbcGenreDao.addGenreToGenreBook(newBook.getId(),g.getId());
+                }
             }
             case "5"->{
 
@@ -122,5 +114,16 @@ public class LibraryController {
         }
         return isSomethingElse;
     }
-
+    private List<Genre> deleteGenreIfEqual(List<Genre> listGenre){
+       for (int i=0; i<listGenre.size();i++){
+           Genre genre = listGenre.get(i);
+           ListIterator<Genre> iter = listGenre.listIterator(i+1);
+           while (iter.hasNext()){
+               if(genre.equals(iter.next())){
+                   iter.remove();
+               }
+           }
+       }
+        return listGenre;
+    }
 }

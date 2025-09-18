@@ -7,11 +7,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import ClassesDOJO.Book;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import Exception.DaoException;
 
 public class JdbcBookDao implements BookDao {
@@ -22,6 +20,20 @@ public class JdbcBookDao implements BookDao {
     }
 
     //************************ Methods
+    @Override
+    public Book getBookById(int id){
+        String query = """
+                SELECT *
+                FROM book
+                WHERE book_id=?""";
+        try{
+            return jdbcTemplate.queryForObject(query,mapper,id);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        }
+    }
     @Override
     public List<Book> getAllBooks() {
         List<Book> listBook = new ArrayList<>();
@@ -57,7 +69,6 @@ public class JdbcBookDao implements BookDao {
         }
 
     }
-
     @Override
     public List<Book> getBookByAuthorFullName(String firstName, String lastName) {
         firstName = "%"+firstName+"%";
@@ -79,6 +90,21 @@ public class JdbcBookDao implements BookDao {
             throw new DaoException("Data Integrity Violation", e);
         } catch (NullPointerException e){
             throw new DaoException("Null ", e);
+        }
+    }
+    @Override
+    public Book createBook(Book blank) {
+        String query = """
+                INSERT INTO book(title, publish_date, count_stock)
+                VALUES (?,?,?)
+                RETURNING book_id;""";
+        try {
+            int id = jdbcTemplate.queryForObject(query, int.class, blank.getTitle(), blank.getPublishDate(), blank.getCountStock());
+            return getBookById(id);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
         }
     }
 
