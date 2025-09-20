@@ -1,5 +1,6 @@
 package System.Interfaces;
 
+import ClassesDOJO.Author;
 import ClassesDOJO.Book;
 import ClassesDOJO.Genre;
 
@@ -14,4 +15,5 @@ public interface Output {
     void printBook(Book o);
     void printBook(List<Book> books);
     void printGenreName(List<Genre> genres);
+    int printAuthorsFullName(List<Author> authors);
 }

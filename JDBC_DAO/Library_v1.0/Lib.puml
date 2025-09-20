@@ -23,13 +23,29 @@ interface System.Interfaces.Output {
 ~ int printMainMenu()
 ~ int printBookMenu()
 ~ void printBook(Book)
+~ void printBook(List<Book>)
+~ void printGenreName(List<Genre>)
 }
 
 interface InterfaceDAO.AuthorDao {
 }
+class System.BlankMaker {
+- Input input
+- CheckChoice check
+- Output out
+- Book createBookBlank(String,LocalDate,int)
++ Book takeInfoForNewBook()
++ List<Genre> takeInfoForGenre(List<Genre>)
+}
+
+
 class JDBCandDAO.JdbcGenreDao {
 - JdbcTemplate jdbcTemplate
+- GenreRowMapper mapper
++ List<Genre> getAllGenre()
++ void addGenreToGenreBook(long,long)
 }
+
 
 class RowMappers.LoanRowMapper {
 + Loan mapRow(ResultSet,int)
@@ -61,13 +77,17 @@ class ClassesDOJO.Genre {
 + void setId(long)
 + String getGenreName()
 + void setGenreName(String)
++ boolean equals(Object)
++ int hashCode()
 }
 
 
 interface InterfaceDAO.BookDao {
+~ Book getBookById(int)
 ~ List<Book> getAllBooks()
 ~ List<Book> getBookByTile(String)
 ~ List<Book> getBookByAuthorFullName(String,String)
+~ Book createBook(Book)
 }
 
 class ClassesDOJO.Reader {
@@ -93,8 +113,14 @@ class ClassesDOJO.Reader {
 
 
 class System.InputCheck {
-+ boolean isCorrect(String,int)
+~ Output out
+~ Input input
++ boolean isCorrectNavigation(String,int)
++ boolean isCorrectDateFormat(String)
++ boolean isCorrectInt(String)
++ boolean isYesOrNo(String)
 }
+
 
 abstract class RowMappers.AuthorRowMapper {
 + Author mapRow(ResultSet,int)
@@ -106,7 +132,10 @@ interface System.Interfaces.Input {
 }
 
 interface InterfaceDAO.GenreDao {
+~ List<Genre> getAllGenre()
+~ void addGenreToGenreBook(long,long)
 }
+
 class ClassesDOJO.Author {
 - long id
 - String authorFirstName
@@ -127,7 +156,10 @@ class ClassesDOJO.Author {
 
 
 interface System.Interfaces.CheckChoice {
-~ boolean isCorrect(String,int)
+~ boolean isCorrectNavigation(String,int)
+~ boolean isCorrectDateFormat(String)
+~ boolean isCorrectInt(String)
+~ boolean isYesOrNo(String)
 }
 
 class ClassesDOJO.Loan {
@@ -158,9 +190,12 @@ class System.LibraryController {
 ~ CheckChoice check
 ~ Connector connect
 ~ BookDao jdbcBookDao
+~ GenreDao jdbcGenreDao
+~ BlankMaker blank
 + void mainMenuNavigation()
 - boolean navigationMain(String)
 - boolean navigationBook(String)
+- List<Genre> deleteGenreIfEqual(List<Genre>)
 }
 
 
@@ -178,6 +213,8 @@ class System.SystemOutput {
 + void print(String)
 + void printError(String)
 + void printBook(Book)
++ void printBook(List<Book>)
++ void printGenreName(List<Genre>)
 + void printLogo()
 + int printMainMenu()
 + int printBookMenu()
@@ -190,9 +227,11 @@ class JDBCandDAO.JdbcLoanDao {
 class JDBCandDAO.JdbcBookDao {
 - JdbcTemplate jdbcTemplate
 - BookRowMapper mapper
++ Book getBookById(int)
 + List<Book> getAllBooks()
 + List<Book> getBookByTile(String)
 + List<Book> getBookByAuthorFullName(String,String)
++ Book createBook(Book)
 }
 
 
@@ -215,7 +254,9 @@ class ClassesDOJO.Book {
 
 
 
+InterfaceDAO.AuthorDao <|.. JDBCandDAO.JdbcAuthorDao
 org.springframework.jdbc.core.RowMapper <|.. RowMappers.BookRowMapper
+InterfaceDAO.GenreDao <|.. JDBCandDAO.JdbcGenreDao
 org.springframework.jdbc.core.RowMapper <|.. RowMappers.LoanRowMapper
 Exception.RuntimeException <|-- Exception.DaoException
 System.Interfaces.Input <|.. System.SystemInput

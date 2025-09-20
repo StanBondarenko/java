@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-public abstract class AuthorRowMapper implements RowMapper<Author>{
+public class AuthorRowMapper implements RowMapper<Author>{
     @Override
    public Author mapRow(ResultSet rs, int rowNum) throws SQLException{
         Author author = new Author();

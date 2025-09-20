@@ -1,4 +1,4 @@
-package JDBCandDAO;
+package JdbcAndDAO;
 
 import ClassesDOJO.Genre;
 import InterfaceDAO.GenreDao;

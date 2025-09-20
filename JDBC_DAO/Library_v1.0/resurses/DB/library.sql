@@ -1,36 +1,27 @@
--- ============= CLEAN START =============
+-- DELETE
 DROP TABLE IF EXISTS loan, book_copy, author_book, genre_book, reader, book, author, genre CASCADE;
 
--- ============= SCHEMA =============
 
--- Authors
+-- Author
 CREATE TABLE author (
   author_id   serial PRIMARY KEY,
   first_name  varchar(50)  NOT NULL,
   last_name   varchar(100) NOT NULL,
   birthday    date         NOT NULL,
-  death_day   date         NULL,
-  CONSTRAINT chk_author_dates CHECK (
-    birthday <= COALESCE(death_day, '9999-12-31') AND birthday <= CURRENT_DATE
-  )
+  death_day   date         NULL
 );
-
--- Genres
+-- Genre
 CREATE TABLE genre (
   genre_id    serial PRIMARY KEY,
-  genre_name  varchar(50) NOT NULL,
-  CONSTRAINT uq_genre_name UNIQUE (genre_name)
+  genre_name  varchar(50) NOT NULL
 );
-
--- Books
+-- books
 CREATE TABLE book (
   book_id      serial PRIMARY KEY,
   title        varchar(100) NOT NULL,
   publish_date date         NOT NULL,
-  count_stock  int          NOT NULL DEFAULT 0,
-  CONSTRAINT chk_book_stock_nonneg CHECK (count_stock >= 0)
+  count_stock  int          NOT NULL DEFAULT 0
 );
-
 -- Readers
 CREATE TABLE reader (
   reader_id    serial PRIMARY KEY,
@@ -40,109 +31,37 @@ CREATE TABLE reader (
   phone_number varchar(50)  NOT NULL,
   e_mail       varchar(254) NOT NULL
 );
--- Case-insensitive uniqueness for emails
-CREATE UNIQUE INDEX uq_reader_email_ci ON reader (lower(e_mail));
-
 -- Book copies (physical inventory)
 CREATE TABLE book_copy (
   copy_id        serial PRIMARY KEY,
-  book_id        int NOT NULL REFERENCES book(book_id) ON DELETE CASCADE,
-  inventory_code text UNIQUE
+  book_id        int NOT NULL REFERENCES book(book_id),
+  inventory_code text
 );
-
 -- Loans
 CREATE TABLE loan (
   loan_id     serial PRIMARY KEY,
-  reader_id   int NOT NULL REFERENCES reader(reader_id)   ON DELETE RESTRICT,
-  copy_id     int NOT NULL REFERENCES book_copy(copy_id)  ON DELETE RESTRICT,
-  loaned_at   timestamptz NOT NULL DEFAULT now(),
+  reader_id   int NOT NULL REFERENCES reader(reader_id),
+  copy_id     int NOT NULL REFERENCES book_copy(copy_id),
+  loaned_at   timestamptz NOT NULL,
   due_at      timestamptz NOT NULL,
-  returned_at timestamptz NULL,
-  CONSTRAINT chk_loan_dates CHECK (due_at > loaned_at),
-  CONSTRAINT chk_return_after_loan CHECK (returned_at IS NULL OR returned_at >= loaned_at)
+  returned_at timestamptz NULL
 );
-
--- One active (unreturned) loan per copy
-CREATE UNIQUE INDEX uq_active_loan_per_copy
-  ON loan(copy_id) WHERE returned_at IS NULL;
-
--- M:N with cascading cleanup
+-- Accosiative
 CREATE TABLE genre_book (
   genre_id int NOT NULL,
   book_id  int NOT NULL,
-  CONSTRAINT pk_genre_book PRIMARY KEY (genre_id, book_id),
-  CONSTRAINT fk_genre_book_genre FOREIGN KEY (genre_id) REFERENCES genre(genre_id) ON DELETE CASCADE,
-  CONSTRAINT fk_genre_book_book  FOREIGN KEY (book_id)  REFERENCES book(book_id)  ON DELETE CASCADE
+  PRIMARY KEY (genre_id, book_id),
+  FOREIGN KEY (genre_id) REFERENCES genre(genre_id),
+  FOREIGN KEY (book_id)  REFERENCES book(book_id)
 );
 
 CREATE TABLE author_book (
   author_id int NOT NULL,
   book_id   int NOT NULL,
-  CONSTRAINT pk_author_book PRIMARY KEY (author_id, book_id),
-  CONSTRAINT fk_author_book_author FOREIGN KEY (author_id) REFERENCES author(author_id) ON DELETE CASCADE,
-  CONSTRAINT fk_author_book_book   FOREIGN KEY (book_id)   REFERENCES book(book_id)   ON DELETE CASCADE
+  PRIMARY KEY (author_id, book_id),
+  FOREIGN KEY (author_id) REFERENCES author(author_id),
+  FOREIGN KEY (book_id)   REFERENCES book(book_id)
 );
-
--- Helpful indexes
-CREATE INDEX idx_book_title       ON book (title);
-CREATE INDEX idx_author_name      ON author (last_name, first_name);
-CREATE INDEX idx_author_book_book ON author_book (book_id);
-CREATE INDEX idx_genre_book_book  ON genre_book (book_id);
-
--- ============= RANDOM INVENTORY CODE (A–Z, len=8) =============
-
--- Random A–Z string generator
-CREATE OR REPLACE FUNCTION random_inventory_code(n int DEFAULT 8)
-RETURNS text AS $$
-DECLARE
-  chars  text := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  result text := '';
-  i int;
-BEGIN
-  FOR i IN 1..n LOOP
-    result := result || substr(chars, floor(random()*26 + 1)::int, 1);
-  END LOOP;
-  RETURN result;
-END;
-$$ LANGUAGE plpgsql;
-
--- Ensure uniqueness by probing book_copy
-CREATE OR REPLACE FUNCTION random_inventory_code_unique(n int DEFAULT 8)
-RETURNS text AS $$
-DECLARE
-  candidate text;
-  tries int := 0;
-BEGIN
-  LOOP
-    candidate := random_inventory_code(n);
-    PERFORM 1 FROM book_copy WHERE inventory_code = candidate;
-    IF NOT FOUND THEN
-      RETURN candidate;
-    END IF;
-    tries := tries + 1;
-    IF tries > 50 THEN
-      RAISE EXCEPTION 'Failed to generate unique inventory code after % tries', tries;
-    END IF;
-  END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-
--- BEFORE INSERT trigger: fill inventory_code if NULL
-CREATE OR REPLACE FUNCTION assign_random_inventory_code()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NEW.inventory_code IS NULL THEN
-    NEW.inventory_code := random_inventory_code_unique(8);
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trg_inventory_code ON book_copy;
-CREATE TRIGGER trg_inventory_code
-BEFORE INSERT ON book_copy
-FOR EACH ROW
-EXECUTE FUNCTION assign_random_inventory_code();
 
 -- ============= SEED DATA =============
 BEGIN;
@@ -244,16 +163,6 @@ SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='One Hundred 
 INSERT INTO author_book (author_id, book_id)
 SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Mrs Dalloway' WHERE a.last_name='Woolf';
 
--- доп. связи для разнообразия
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='The Old Man and the Sea' WHERE a.last_name='Twain';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Murder on the Orient Express' WHERE a.last_name='Conan Doyle';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Frankenstein' WHERE a.last_name='Orwell';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='The Hound of the Baskervilles' WHERE a.last_name='Christie';
-
 -- ---- GENRE_BOOK links
 INSERT INTO genre_book (genre_id, book_id)
 SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='War and Peace' WHERE g.genre_name IN ('Classic','Historical','Drama');
@@ -286,8 +195,8 @@ SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='One Hundred Ye
 INSERT INTO genre_book (genre_id, book_id)
 SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Mrs Dalloway' WHERE g.genre_name IN ('Classic','Novel');
 
--- ---- BOOK_COPY (20 копий: базово 15 + 5 дополнительных)
--- базовые 15 (по одной на книгу)
+-- ---- BOOK_COPY
+
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='War and Peace';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Crime and Punishment';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Pride and Prejudice';
@@ -303,17 +212,11 @@ INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Frankenste
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Moby-Dick';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='One Hundred Years of Solitude';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Mrs Dalloway';
-
--- дополнительные 5 (для книг со stock=2; и третью для War and Peace)
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='War and Peace';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='1984';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Harry Potter and the Sorcerer''s Stone';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Hobbit';
 INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='War and Peace'; -- третья копия
-
--- ---- LOANS (18 шт.) — выбор свободной копии по названию книги
-
--- helper CTE для окна вставок: нет, вставляем напрямую
 
 -- 1
 INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
@@ -514,8 +417,7 @@ VALUES (
 );
 
 COMMIT;
-
--- ---- ДОБАВОЧНЫЙ ПАКЕТ КНИГ (ещё 15) ----
+--- More data
 BEGIN;
 
 INSERT INTO book (title, publish_date, count_stock) VALUES

@@ -21,6 +21,19 @@ public class InputCheck implements CheckChoice {
      }
     }
     @Override
+    public int checkIfAuthorIsNew(String input, int maxRow) {
+        if(input.equalsIgnoreCase("new")){
+            return 3;// author is new
+        }
+       try {
+           Integer.parseInt(input);
+           return 1;// author not new
+       }catch (NumberFormatException e){
+           out.printError("Invalid input.");
+           return 0;// not correct
+       }
+    }
+    @Override
     public boolean isCorrectDateFormat(String date){
         try {
             LocalDate publishDate= LocalDate.parse(date);
@@ -57,5 +70,8 @@ public class InputCheck implements CheckChoice {
             }
         }
         }
+    }
+    public boolean isWordsOnly(String input){
+      return input.matches("[a-zA-Z]+");
     }
 }

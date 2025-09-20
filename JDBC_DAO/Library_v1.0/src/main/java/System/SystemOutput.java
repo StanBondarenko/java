@@ -1,5 +1,6 @@
 package System;
 
+import ClassesDOJO.Author;
 import ClassesDOJO.Book;
 import ClassesDOJO.Genre;
 import System.Interfaces.Output;
@@ -10,6 +11,7 @@ import java.util.Scanner;
 import static java.lang.System.in;
 
 public class SystemOutput implements Output {
+    //System methods
     @Override
     public void print(String massage){
         System.out.println(massage);
@@ -18,6 +20,7 @@ public class SystemOutput implements Output {
     public void printError(String message){
         System.err.println("❌ ERROR:"+message);
     }
+    // Methods print for take info from user
     @Override
     public void printBook(Book o) {
         System.out.println(o.toString());
@@ -41,6 +44,15 @@ public class SystemOutput implements Output {
         }
 
     }
+    @Override
+    public int printAuthorsFullName(List<Author> authors) {
+        int count = 0;
+        for (Author a : authors){
+            System.out.println(++count+": "+a.getAuthorFirstName()+" "+a.getAuthorLastName());
+        }
+        return authors.size();
+    }
+
     @Override
     public void printLogo(){
         System.out.println("""

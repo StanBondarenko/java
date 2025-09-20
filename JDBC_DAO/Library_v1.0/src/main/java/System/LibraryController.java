@@ -1,11 +1,14 @@
 package System;
 
+import ClassesDOJO.Author;
 import ClassesDOJO.Book;
 import ClassesDOJO.Genre;
+import InterfaceDAO.AuthorDao;
 import InterfaceDAO.BookDao;
 import InterfaceDAO.GenreDao;
-import JDBCandDAO.JdbcBookDao;
-import JDBCandDAO.JdbcGenreDao;
+import JdbcAndDAO.JdbcAuthorDao;
+import JdbcAndDAO.JdbcBookDao;
+import JdbcAndDAO.JdbcGenreDao;
 import System.Interfaces.CheckChoice;
 import System.Interfaces.Input;
 import System.Interfaces.Output;
@@ -20,6 +23,7 @@ public class LibraryController {
     Connector connect = new Connector();
     BookDao jdbcBookDao = new JdbcBookDao(connect.getDataSource());
     GenreDao jdbcGenreDao = new JdbcGenreDao(connect.getDataSource());
+    AuthorDao jdbcAuthorDao = new JdbcAuthorDao(connect.getDataSource());
     BlankMaker blank = new BlankMaker();
 
     public void mainMenuNavigation(){
@@ -95,12 +99,22 @@ public class LibraryController {
                 out.printBook(jdbcBookDao.getBookByAuthorFullName(firstName,lastName));
             }
             case "4"->{
+                // ADD book
                 Book newBook =jdbcBookDao.createBook(blank.takeInfoForNewBook());
+                // List of genre
                 List<Genre> genres=blank.takeInfoForGenre(jdbcGenreDao.getAllGenre());
+                // Sort List of genre
                 deleteGenreIfEqual(genres);
+                // Add genres from list to the DB
                 for (Genre g : genres){
                     jdbcGenreDao.addGenreToGenreBook(newBook.getId(),g.getId());
                 }
+                // Add new author for new book
+                Author newAuthor = blank.takeAuthorInfoForNewBook(jdbcAuthorDao.getAllAuthors());
+                if (newAuthor.getId()==0){
+                    newAuthor= jdbcAuthorDao.createAuthor(newAuthor);
+                }
+                jdbcAuthorDao.addNewDataToAuthorBook(newAuthor.getId(),newBook.getId());
             }
             case "5"->{
 
@@ -114,7 +128,7 @@ public class LibraryController {
         }
         return isSomethingElse;
     }
-    private List<Genre> deleteGenreIfEqual(List<Genre> listGenre){
+    private void deleteGenreIfEqual(List<Genre> listGenre){
        for (int i=0; i<listGenre.size();i++){
            Genre genre = listGenre.get(i);
            ListIterator<Genre> iter = listGenre.listIterator(i+1);
@@ -124,6 +138,5 @@ public class LibraryController {
                }
            }
        }
-        return listGenre;
     }
 }

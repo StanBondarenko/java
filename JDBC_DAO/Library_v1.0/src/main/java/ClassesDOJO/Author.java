@@ -1,6 +1,7 @@
 package ClassesDOJO;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Author {
     private long id;
@@ -12,6 +13,14 @@ public class Author {
     public Author(){
 
     }
+
+    public Author(String authorFirstName, String authorLastName, LocalDate birthday, LocalDate deathDate) {
+        this.authorFirstName = authorFirstName;
+        this.authorLastName = authorLastName;
+        this.birthday = birthday;
+        this.deathDate = deathDate;
+    }
+
     public long getId() {
         return id;
     }
@@ -50,5 +59,30 @@ public class Author {
 
     public void setDeathDate(LocalDate deathDate) {
         this.deathDate = deathDate;
+    }
+    @Override
+    public String toString(){
+        return "Author ID-->  "+this.id+
+                " Author Firs Name--> "+this.authorFirstName+
+                " Author Last Name--> "+this.authorLastName+
+                " Birthday-->"+this.birthday+
+                " Death Day--> "+this.deathDate;
+    }
+    // Equals
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Author author = (Author) o;
+        return id == author.id
+                && Objects.equals(authorFirstName, author.authorFirstName)
+                && Objects.equals(authorLastName, author.authorLastName)
+                && Objects.equals(birthday, author.birthday)
+                && Objects.equals(deathDate, author.deathDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id,authorFirstName,authorLastName,birthday,deathDate);
     }
 }

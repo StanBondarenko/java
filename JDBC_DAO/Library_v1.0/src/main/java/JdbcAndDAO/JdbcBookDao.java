@@ -1,4 +1,4 @@
-package JDBCandDAO;
+package JdbcAndDAO;
 
 import InterfaceDAO.BookDao;
 import RowMappers.BookRowMapper;
