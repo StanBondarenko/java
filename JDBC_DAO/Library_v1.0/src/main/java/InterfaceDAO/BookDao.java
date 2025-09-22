@@ -10,5 +10,6 @@ public interface BookDao {
     List<Book> getBookByTile(String title);
     List<Book> getBookByAuthorFullName (String firstName, String lastName);
     Book createBook(Book blank);
+    void createBookCopy(int valueCopy, long bookId);
 
 }

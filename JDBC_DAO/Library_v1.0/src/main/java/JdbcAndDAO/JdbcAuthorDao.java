@@ -15,7 +15,7 @@ import java.util.Objects;
 
 public class JdbcAuthorDao implements AuthorDao {
     private final JdbcTemplate jdbcTemplate;
-    private AuthorRowMapper mapper = new AuthorRowMapper();
+    private final AuthorRowMapper mapper = new AuthorRowMapper();
     public JdbcAuthorDao(DataSource dataSource){
         jdbcTemplate= new JdbcTemplate(dataSource);
     }
@@ -55,7 +55,7 @@ public class JdbcAuthorDao implements AuthorDao {
                 VALUES (?,?,?,?)
                 RETURNING author_id""";
         try {
-            int id = jdbcTemplate.queryForObject(query,int.class,mapper);
+            int id = jdbcTemplate.queryForObject(query,int.class,blank.getAuthorFirstName(),blank.getAuthorLastName(), blank.getBirthday(),blank.getDeathDate());
             return getAuthorById(id);
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to server or database", e);
@@ -77,4 +77,6 @@ public class JdbcAuthorDao implements AuthorDao {
             throw new DaoException("Data Integrity Violation", e);
         }
     }
+
+
 }

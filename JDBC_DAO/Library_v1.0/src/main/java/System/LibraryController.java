@@ -114,7 +114,10 @@ public class LibraryController {
                 if (newAuthor.getId()==0){
                     newAuthor= jdbcAuthorDao.createAuthor(newAuthor);
                 }
+                // add to author_book
                 jdbcAuthorDao.addNewDataToAuthorBook(newAuthor.getId(),newBook.getId());
+                // add to copy_book
+                jdbcBookDao.createBookCopy(newBook.getCountStock(),newBook.getId());
             }
             case "5"->{
 

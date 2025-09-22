@@ -99,35 +99,43 @@ public class BlankMaker {
         LocalDate deathDay= null;
         Author newAuthor = null;
         while (isNotDone) {
-            String answer = input.promtChoice("Enter a first name for the new author>>>");
-            if (check.isWordsOnly(answer)){
-                firstName = answer;
+            String answerFN = input.promtChoice("Enter a first name for the new author>>>");
+            if (check.isWordsOnly(answerFN)){
+                firstName = answerFN;
             }else {
                 out.printError("Invalid input!");
                 continue;
             }
-            answer = input.promtChoice("Enter a last name for the new author (YYYY-MM-DD)>>>");
-            if (check.isWordsOnly(answer)){
-                lastName = answer;
+            String answerLN = input.promtChoice("Enter a last name for the new author>>>");
+            if (check.isWordsOnly(answerLN)){
+                lastName = answerLN;
             }else {
                 out.printError("Invalid input!");
                 continue;
             }
-            answer = input.promtChoice("Enter a date of birth for the new author (YYYY-MM-DD)>>>");
-            if (check.isCorrectDateFormat(answer)){
-                birthday = LocalDate.parse(answer);
+           String answerB = input.promtChoice("Enter a date of birth for the new author (YYYY-MM-DD)>>>");
+            if (check.isCorrectDateFormat(answerB)){
+                birthday = LocalDate.parse(answerB);
             }else {
-                out.printError("Invalid input!");
                 continue;
             }
-            if (check.isYesOrNo("Rude question: is the author still alive?")){
-                answer = input.promtChoice("Enter a date of birth for the new author (YYYY-MM-DD)>>>");
-                if (check.isCorrectDateFormat(answer)){
-                    deathDay = LocalDate.parse(answer);
-                    newAuthor= new Author(firstName,lastName,birthday,deathDay);
+            if (!check.isYesOrNo("Rude question: is the author still alive?")){
+              String  answerDD = input.promtChoice("Enter a date of deаth for the new author (YYYY-MM-DD)>>>");
+                if (check.isCorrectDateFormat(answerDD)){
+                    deathDay = LocalDate.parse(answerDD);
+                    if (deathDay.isBefore(birthday)){
+                        out.printError("The day of death cannot be earlier than the day of birth.");
+                        continue;
+                    }else {
+                        newAuthor = new Author(firstName, lastName, birthday, deathDay);
+                        isNotDone = false;
+                    }
+                }else {
+                    continue;
                 }
             }else {
                 newAuthor= new Author(firstName,lastName,birthday,null);
+                isNotDone = false;
             }
         }
         return newAuthor;

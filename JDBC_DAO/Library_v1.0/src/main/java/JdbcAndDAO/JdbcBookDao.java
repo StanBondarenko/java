@@ -107,5 +107,21 @@ public class JdbcBookDao implements BookDao {
             throw new DaoException("Data Integrity Violation", e);
         }
     }
+    @Override
+    public void createBookCopy(int valueCopy, long bookId) {
+        String query = """
+                INSERT INTO book_copy(book_id, inventory_code)
+                VALUES (?,?)""";
+        try{
+            for(int i = 1; i<=valueCopy; i++){
+                jdbcTemplate.update(query,bookId,"");
+            }
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        }
+
+    }
 
 }

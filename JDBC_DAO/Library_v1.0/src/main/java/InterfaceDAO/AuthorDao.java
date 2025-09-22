@@ -9,4 +9,5 @@ public interface AuthorDao {
     List<Author> getAllAuthors();
     Author createAuthor(Author blank);
     void addNewDataToAuthorBook(long authorId, long bookId);
+
 }
