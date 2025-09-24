@@ -17,6 +17,13 @@ public class Book {
         this.countStock = countStock;
     }
 
+    public Book(long id, String title, LocalDate publishDate, int countStock) {
+        this.id = id;
+        this.title = title;
+        this.publishDate = publishDate;
+        this.countStock = countStock;
+    }
+
     public long getId() {
         return id;
     }

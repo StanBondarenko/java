@@ -27,7 +27,8 @@ public class JdbcBookDao implements BookDao {
                 FROM book
                 WHERE book_id=?""";
         try{
-            return jdbcTemplate.queryForObject(query,mapper,id);
+            List<Book> books = jdbcTemplate.query(query,mapper,id);
+            return books.isEmpty() ? null: books.getFirst();
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to server or database", e);
         }catch (DataIntegrityViolationException e) {
@@ -108,20 +109,71 @@ public class JdbcBookDao implements BookDao {
         }
     }
     @Override
-    public void createBookCopy(int valueCopy, long bookId) {
+    public void createBookCopy(Book blankBook) {
         String query = """
-                INSERT INTO book_copy(book_id, inventory_code)
-                VALUES (?,?)""";
+                INSERT INTO book_copy (book_id, inventory_code)
+                SELECT ?, random_inventory_number(8) FROM book WHERE title=?;""";
         try{
-            for(int i = 1; i<=valueCopy; i++){
-                jdbcTemplate.update(query,bookId,"");
+            for(int i = 1; i<=blankBook.getCountStock(); i++){
+                jdbcTemplate.update(query,blankBook.getId(),blankBook.getTitle());
             }
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to server or database", e);
         }catch (DataIntegrityViolationException e) {
             throw new DaoException("Data Integrity Violation", e);
         }
+    }
 
+    @Override
+    public void updateBook(Book blankBook) {
+    String query = """
+           UPDATE book
+           SET title=?, publish_date=?, count_stock=?
+           WHERE book_id = ?""";
+    try {
+        int row = jdbcTemplate.update(query,blankBook.getTitle(),blankBook.getPublishDate(),blankBook.getCountStock(),blankBook.getId());
+        if(row==0){
+            throw new DaoException("Zero rows affected, expected at least one");
+        }
+    }catch (CannotGetJdbcConnectionException e) {
+        throw new DaoException("Unable to connect to server or database", e);
+    } catch (DataIntegrityViolationException e) {
+        throw new DaoException("Data integrity violation", e);
+    }
+    }
+
+    @Override
+    public void deleteBook(Book bookForDelete) {
+        long id = bookForDelete.getId();
+        String deleteAB = """
+                DELETE FROM author_book
+                WHERE book_id = ?""";
+        String deleteCB = """
+                DELETE FROM book_copy
+                WHERE book_id = ?""";
+        String deleteGB = """
+                DELETE FROM genre_book
+                WHERE book_id = ?""";
+        String deleteLoan= """
+                DELETE FROM loan
+                WHERE copy_id IN(
+                SELECT copy_id
+                FROM book_copy
+                WHERE book_id=?)""";
+        String deleteBook = """
+                DELETE FROM book
+                WHERE book_id=?""";
+        try {
+            jdbcTemplate.update(deleteAB,id);
+            jdbcTemplate.update(deleteLoan,id);
+            jdbcTemplate.update(deleteCB,id);
+            jdbcTemplate.update(deleteGB,id);
+            jdbcTemplate.update(deleteBook,id);
+        }catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
+        }
     }
 
 }

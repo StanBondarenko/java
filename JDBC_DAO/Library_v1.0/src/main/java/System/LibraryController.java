@@ -3,12 +3,15 @@ package System;
 import ClassesDOJO.Author;
 import ClassesDOJO.Book;
 import ClassesDOJO.Genre;
+import ClassesDOJO.Reader;
 import InterfaceDAO.AuthorDao;
 import InterfaceDAO.BookDao;
 import InterfaceDAO.GenreDao;
+import InterfaceDAO.ReaderDao;
 import JdbcAndDAO.JdbcAuthorDao;
 import JdbcAndDAO.JdbcBookDao;
 import JdbcAndDAO.JdbcGenreDao;
+import JdbcAndDAO.JdbcReaderDao;
 import System.Interfaces.CheckChoice;
 import System.Interfaces.Input;
 import System.Interfaces.Output;
@@ -24,6 +27,7 @@ public class LibraryController {
     BookDao jdbcBookDao = new JdbcBookDao(connect.getDataSource());
     GenreDao jdbcGenreDao = new JdbcGenreDao(connect.getDataSource());
     AuthorDao jdbcAuthorDao = new JdbcAuthorDao(connect.getDataSource());
+    ReaderDao jdbcReaderDao = new JdbcReaderDao(connect.getDataSource());
     BlankMaker blank = new BlankMaker();
 
     public void mainMenuNavigation(){
@@ -43,7 +47,8 @@ public class LibraryController {
                         isSubMain = navigationMain(userNum);
                     }
                 } else {
-                    out.printError("Invalid input!");
+                    out.printError("Invalid input.");
+                    continue;
                 }
             }
 
@@ -65,7 +70,15 @@ public class LibraryController {
                 }
             }
             case "2"->{
-
+                while (isSomethingElse) {
+                    int numOfString = out.printReaderMenu();
+                    String choice = input.promtChoice("Enter number>>>>");
+                    if (check.isCorrectNavigation(choice, numOfString)) {
+                        isSomethingElse=navigationReader(choice);
+                    } else {
+                        out.printError("Invalid input!");
+                    }
+                }
             }
             case "3"->{
 
@@ -101,6 +114,9 @@ public class LibraryController {
             case "4"->{
                 // ADD book
                 Book newBook =jdbcBookDao.createBook(blank.takeInfoForNewBook());
+                out.print("A new book has been created:");
+                out.printBook(newBook);
+                input.pause();
                 // List of genre
                 List<Genre> genres=blank.takeInfoForGenre(jdbcGenreDao.getAllGenre());
                 // Sort List of genre
@@ -113,17 +129,38 @@ public class LibraryController {
                 Author newAuthor = blank.takeAuthorInfoForNewBook(jdbcAuthorDao.getAllAuthors());
                 if (newAuthor.getId()==0){
                     newAuthor= jdbcAuthorDao.createAuthor(newAuthor);
+                    out.print("A new author has been created:");
+                    out.print(newAuthor.toString());
+                    input.pause();
+
                 }
                 // add to author_book
                 jdbcAuthorDao.addNewDataToAuthorBook(newAuthor.getId(),newBook.getId());
                 // add to copy_book
-                jdbcBookDao.createBookCopy(newBook.getCountStock(),newBook.getId());
+                jdbcBookDao.createBookCopy(newBook);
             }
-            case "5"->{
-
+            case "5"->{ // Update
+                List<Book> listBook = jdbcBookDao.getAllBooks();
+                Book blankForUpdate=blank.takeInfoForBookUpdate(blank.takeBookForUpdate(listBook));
+                jdbcBookDao.updateBook(blankForUpdate);
             }
             case "6"->{
-
+                // DELETE
+                List<Book> listBook = jdbcBookDao.getAllBooks();
+                boolean isNeedMoreInfo = true;
+                while (isNeedMoreInfo) {
+                    out.printBook(listBook);
+                    String num=input.promtChoice("Select a book to delete>>>");
+                    if (check.isCorrectNavigation(num,listBook.size())){
+                       int index = Integer.parseInt(num)-1;
+                        Book bookForDelete = listBook.get(index);
+                        jdbcBookDao.deleteBook(bookForDelete);
+                        isNeedMoreInfo = false;
+                    }else {
+                        out.printError("Invalid input");
+                        continue;
+                    }
+                }
             }
             case "7"->{
                 return false;
@@ -131,6 +168,42 @@ public class LibraryController {
         }
         return isSomethingElse;
     }
+    private boolean navigationReader(String inputUser){
+        boolean isSomethingElse =true;
+        switch (inputUser){
+            case "1"->{
+                String idUser = input.promtChoice("Enter reader ID>>>>");
+                if (check.isCorrectInt(idUser)){
+                    int id = Integer.parseInt(idUser);
+                    Reader reader = jdbcReaderDao.getReaderById(id);
+                    if (reader==null
+                    ){
+                        out.printError("No reader with this ID found.");
+                        input.pause();
+                    }else {
+                        out.printReader(reader);
+                        input.pause();
+                    }
+                }else {
+                    out.printError("Invalid input!");
+                }
+            }
+            case "2"->{
+                Reader blankReader = blank.takeInfoForNewReader();
+                Reader newReader = jdbcReaderDao.createNewReader(blankReader);
+                out.print("A new reader has been created:");
+                out.printReader(newReader);
+                input.pause();
+            }
+            case "3"->{}
+            case "4"->{}
+            case "5"->{
+                return false;
+            }
+        }
+        return isSomethingElse;
+    }
+    // delete same genre
     private void deleteGenreIfEqual(List<Genre> listGenre){
        for (int i=0; i<listGenre.size();i++){
            Genre genre = listGenre.get(i);
@@ -142,4 +215,5 @@ public class LibraryController {
            }
        }
     }
+
 }

@@ -17,6 +17,7 @@ public class InputCheck implements CheckChoice {
           int num = Integer.parseInt(input);
           return num>0 && num<=maxNum;
      }catch (NumberFormatException e){
+
          return false;
      }
     }
@@ -72,6 +73,42 @@ public class InputCheck implements CheckChoice {
         }
     }
     public boolean isWordsOnly(String input){
-      return input.matches("[a-zA-Z]+");
+      if(input.matches("[a-zA-Z]+")){
+          return true;
+      }else {
+          out.printError("Incorrect input");
+          return false;
+      }
     }
+    @Override
+    public boolean isCorrectPhoneNumber(String phoneNum) {
+        String pattern = "^[0-9()+\\-\\s]+$";
+        if (phoneNum != null && phoneNum.matches(pattern)){
+            return true;
+        }else {
+            out.printError("Invalid format.");
+            return false;
+        }
+
+    }
+    @Override
+    public boolean hasNotSpecialCharacters(String input) {
+        if (input.matches("[a-zA-Z0-9\\s]+")){
+            return true;
+        }else {
+            out.printError("Special characters cannot be used.");
+            return false;
+        }
+    }
+    @Override
+    public boolean isCorrectEmail(String email) {
+        if(email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")){
+            return true;
+        }else {
+            out.printError("Incorrect input");
+            return false;
+        }
+    }
+
+
 }

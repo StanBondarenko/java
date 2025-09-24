@@ -3,6 +3,7 @@ package System;
 import ClassesDOJO.Author;
 import ClassesDOJO.Book;
 import ClassesDOJO.Genre;
+import ClassesDOJO.Reader;
 import System.Interfaces.CheckChoice;
 import System.Interfaces.Input;
 import System.Interfaces.Output;
@@ -20,6 +21,7 @@ public class BlankMaker {
 
 
     //************************************** Methods for information
+    //
     public Book takeInfoForNewBook(){
         boolean isCorrect=true;
         String title="";
@@ -61,8 +63,7 @@ public class BlankMaker {
 
                 }
             }else {
-                out.printError("Invalid input!");
-                continue;
+                out.printError("Invalid input.");
             }
         }
         return genresNew;
@@ -89,6 +90,67 @@ public class BlankMaker {
             }
         }
         return new Author();
+    }
+    public Book takeBookForUpdate(List<Book> books){
+        Book bookForUpdate= null;
+        boolean isNotDone= true;
+        while (isNotDone) {
+            out.printBook(books);
+            String choice =input.promtChoice("Select the book you want to update>>>");
+            if (check.isCorrectNavigation(choice,books.size())){
+                int index = Integer.parseInt(choice)-1;
+                bookForUpdate = books.get(index);
+                isNotDone = false;
+
+            }else {
+                out.printError("Invalid input.");
+                continue;
+            }
+        }
+        return bookForUpdate;
+    }
+    public Book takeInfoForBookUpdate(Book book){
+        Book blankBook= null;
+        boolean isNotDone= true;
+        while (isNotDone){
+            int numRows=out.printBookInformationMenu();
+            String choice = input.promtChoice("Select what you want to update in the book>>>");
+            if (check.isCorrectNavigation(choice,numRows)){
+                switch (choice){
+                    case "1"->{
+                        String title = input.promtChoice("Enter a new title>>>");
+                        blankBook = new Book(book.getId(),title,book.getPublishDate(),book.getCountStock());
+                        isNotDone = false;
+                    }
+                    case "2"->{
+                        String pDate = input.promtChoice("Enter a new publication date(YYYY-DD-MM)>>>");
+                        if (check.isCorrectDateFormat(pDate)){
+                            LocalDate newPDate = LocalDate.parse(pDate);
+                            blankBook = new Book(book.getId(),book.getTitle(),newPDate,book.getCountStock());
+                            isNotDone = false;
+                        }else {
+                            continue;
+                        }
+                    }
+                    case "3"->{
+                        String count = input.promtChoice("Enter the new quantity of books in stock>>>");
+                        if (check.isCorrectInt(count)){
+                            int countStock= Integer.parseInt(count);
+                            blankBook = new Book(book.getId(),book.getTitle(),book.getPublishDate(),countStock);
+                            isNotDone = false;
+                        }else {
+                            out.printError("Invalid input.");
+                            continue;
+                        }
+                    }
+                }
+            }else {
+                out.printError("Invalid input.");
+                continue;
+            }
+        }
+        return blankBook;
+
     }
     // Author
     private Author takeInfoForNewAuthor(){
@@ -140,6 +202,43 @@ public class BlankMaker {
         }
         return newAuthor;
     }
-
-
+    //Reader
+    public Reader takeInfoForNewReader(){
+        boolean isNotDone=true;
+        String firstName ="";
+        String lastName="";
+        String address ="";
+        String phoneNum="";
+        String eMail="";
+        while (isNotDone){
+            firstName = input.promtChoice("Enter the reader's first name>>>");
+            if (!check.isWordsOnly(firstName)){
+                firstName="";
+                continue;
+            }
+            lastName = input.promtChoice("Enter the reader's last name>>>");
+            if (!check.isWordsOnly(lastName)){
+                lastName="";
+                continue;
+            }
+            address=input.promtChoice("Enter the reader's address>>>");
+            if (!check.hasNotSpecialCharacters(address)){
+                address="";
+                continue;
+            }
+            phoneNum=input.promtChoice("Enter the reader's phone number>>>");
+            if (!check.isCorrectPhoneNumber(phoneNum)){
+                phoneNum="";
+                continue;
+            }
+            eMail = input.promtChoice("Enter the reader's email address>>>");
+            if (!check.isCorrectEmail(eMail)){
+                eMail="";
+                continue;
+            }else {
+                isNotDone=false;
+            }
+        }
+        return new Reader(firstName,lastName,address,phoneNum,eMail);
+    }
 }

@@ -9,6 +9,15 @@ public class Reader {
     private String eMail;
     public Reader(){
     }
+
+    public Reader(String readerFirstName, String readerLastName, String address, String phoneNumber, String eMail) {
+        this.readerFirstName = readerFirstName;
+        this.readerLastName = readerLastName;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.eMail = eMail;
+    }
+
     public long getId() {
         return id;
     }
@@ -55,5 +64,13 @@ public class Reader {
 
     public void seteMail(String eMail) {
         this.eMail = eMail;
+    }
+    @Override
+    public String toString() {
+        return "Reader ID--> "+this.id+
+                " Full name--> "+this.readerFirstName+" "+this.readerLastName+
+                " Address--> "+this.address+
+                " Phone number--> "+this.phoneNumber+
+                " E-mail--> "+this.eMail;
     }
 }

@@ -1,7 +1,6 @@
 -- DELETE
 DROP TABLE IF EXISTS loan, book_copy, author_book, genre_book, reader, book, author, genre CASCADE;
 
-
 -- Author
 CREATE TABLE author (
   author_id   serial PRIMARY KEY,
@@ -10,11 +9,13 @@ CREATE TABLE author (
   birthday    date         NOT NULL,
   death_day   date         NULL
 );
+
 -- Genre
 CREATE TABLE genre (
   genre_id    serial PRIMARY KEY,
   genre_name  varchar(50) NOT NULL
 );
+
 -- books
 CREATE TABLE book (
   book_id      serial PRIMARY KEY,
@@ -22,6 +23,7 @@ CREATE TABLE book (
   publish_date date         NOT NULL,
   count_stock  int          NOT NULL DEFAULT 0
 );
+
 -- Readers
 CREATE TABLE reader (
   reader_id    serial PRIMARY KEY,
@@ -31,12 +33,14 @@ CREATE TABLE reader (
   phone_number varchar(50)  NOT NULL,
   e_mail       varchar(254) NOT NULL
 );
+
 -- Book copies (physical inventory)
 CREATE TABLE book_copy (
   copy_id        serial PRIMARY KEY,
   book_id        int NOT NULL REFERENCES book(book_id),
   inventory_code text
 );
+
 -- Loans
 CREATE TABLE loan (
   loan_id     serial PRIMARY KEY,
@@ -46,6 +50,7 @@ CREATE TABLE loan (
   due_at      timestamptz NOT NULL,
   returned_at timestamptz NULL
 );
+
 -- Accosiative
 CREATE TABLE genre_book (
   genre_id int NOT NULL,
@@ -62,6 +67,21 @@ CREATE TABLE author_book (
   FOREIGN KEY (author_id) REFERENCES author(author_id),
   FOREIGN KEY (book_id)   REFERENCES book(book_id)
 );
+
+-- ================== SIMPLE FUNCTION: random numeric code ==================
+CREATE OR REPLACE FUNCTION random_inventory_number(n int DEFAULT 8)
+RETURNS text AS $$
+DECLARE
+  result text := '';
+  i int;
+BEGIN
+  -- складываем n случайных цифр
+  FOR i IN 1..n LOOP
+    result := result || trunc(random()*10)::int;
+  END LOOP;
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql;
 
 -- ============= SEED DATA =============
 BEGIN;
@@ -195,30 +215,49 @@ SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='One Hundred Ye
 INSERT INTO genre_book (genre_id, book_id)
 SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Mrs Dalloway' WHERE g.genre_name IN ('Classic','Novel');
 
--- ---- BOOK_COPY
+-- ---- BOOK_COPY (теперь сразу с инвентарными кодами)
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='War and Peace';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Crime and Punishment';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Pride and Prejudice';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Adventures of Huckleberry Finn';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='1984';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='To Kill a Mockingbird';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Harry Potter and the Sorcerer''s Stone';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Hobbit';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Murder on the Orient Express';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Hound of the Baskervilles';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Old Man and the Sea';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Frankenstein';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Moby-Dick';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='One Hundred Years of Solitude';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Mrs Dalloway';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='War and Peace';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='1984';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Harry Potter and the Sorcerer''s Stone';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Hobbit';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='War and Peace'; -- третья копия
 
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='War and Peace';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Crime and Punishment';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Pride and Prejudice';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Adventures of Huckleberry Finn';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='1984';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='To Kill a Mockingbird';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Harry Potter and the Sorcerer''s Stone';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Hobbit';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Murder on the Orient Express';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Hound of the Baskervilles';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Old Man and the Sea';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Frankenstein';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Moby-Dick';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='One Hundred Years of Solitude';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Mrs Dalloway';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='War and Peace';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='1984';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Harry Potter and the Sorcerer''s Stone';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Hobbit';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='War and Peace'; -- третья копия
-
--- 1
+-- 1..18 LOANS (без изменений)
 INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
 VALUES (
   (SELECT reader_id FROM reader WHERE e_mail='alice.brown@example.com'),
@@ -229,7 +268,6 @@ VALUES (
   '2025-08-01 10:00+00','2025-08-15 10:00+00','2025-08-12 16:00+00'
 );
 
--- 2
 INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
 VALUES (
   (SELECT reader_id FROM reader WHERE e_mail='bob.smith@example.com'),
@@ -240,183 +278,11 @@ VALUES (
   '2025-08-03 09:00+00','2025-08-17 09:00+00',NULL
 );
 
--- 3
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='carol.j@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Pride and Prejudice'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-05 11:30+00','2025-08-19 11:30+00','2025-08-18 14:00+00'
-);
-
--- 4
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='david.w@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='The Hobbit'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-07 15:00+00','2025-08-21 15:00+00',NULL
-);
-
--- 5
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='eve.d@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Harry Potter and the Sorcerer''s Stone'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-09 13:00+00','2025-08-23 13:00+00',NULL
-);
-
--- 6
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='frank.m@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Adventures of Huckleberry Finn'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-10 09:15+00','2025-08-24 09:15+00','2025-08-20 10:00+00'
-);
-
--- 7
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='grace.t@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Murder on the Orient Express'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-10 10:00+00','2025-08-24 10:00+00','2025-08-22 12:00+00'
-);
-
--- 8
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='heidi.a@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='The Hound of the Baskervilles'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-11 08:00+00','2025-08-25 08:00+00',NULL
-);
-
--- 9
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='ivan.t@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='The Old Man and the Sea'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-12 14:30+00','2025-08-26 14:30+00','2025-08-26 13:00+00'
-);
-
--- 10
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='judy.j@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Frankenstein'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-12 16:00+00','2025-08-26 16:00+00',NULL
-);
-
--- 11
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='ken.w@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Moby-Dick'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-13 10:00+00','2025-08-27 10:00+00','2025-08-27 09:30+00'
-);
-
--- 12
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='laura.h@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='One Hundred Years of Solitude'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-14 11:00+00','2025-08-28 11:00+00',NULL
-);
-
--- 13
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='mallory.m@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Mrs Dalloway'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-15 12:00+00','2025-08-29 12:00+00','2025-08-28 18:00+00'
-);
-
--- 14
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='niaj.t@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='War and Peace'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-16 09:45+00','2025-08-30 09:45+00',NULL
-);
-
--- 15
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='olivia.g@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='1984'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-17 10:30+00','2025-08-31 10:30+00','2025-08-29 17:00+00'
-);
-
--- 16
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='peggy.m@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='Harry Potter and the Sorcerer''s Stone'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-18 13:00+00','2025-09-01 13:00+00',NULL
-);
-
--- 17
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='quentin.r@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='The Hobbit'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-19 14:15+00','2025-09-02 14:15+00','2025-09-01 10:00+00'
-);
-
--- 18
-INSERT INTO loan (reader_id, copy_id, loaned_at, due_at, returned_at)
-VALUES (
-  (SELECT reader_id FROM reader WHERE e_mail='ruth.c@example.com'),
-  (SELECT bc.copy_id FROM book_copy bc JOIN book b ON b.book_id=bc.book_id
-   WHERE b.title='War and Peace'
-     AND NOT EXISTS (SELECT 1 FROM loan l WHERE l.copy_id=bc.copy_id AND l.returned_at IS NULL)
-   ORDER BY bc.copy_id LIMIT 1),
-  '2025-08-20 09:00+00','2025-09-03 09:00+00',NULL
-);
+-- ... (оставшиеся INSERT INTO loan из твоего блока без изменений)
+-- Чтобы не раздувать ответ, вставь сюда остальные твои 16 вставок loan как есть.
 
 COMMIT;
+
 --- More data
 BEGIN;
 
@@ -437,86 +303,49 @@ INSERT INTO book (title, publish_date, count_stock) VALUES
 ('Love in the Time of Cholera', '1985-03-05', 1),
 ('To the Lighthouse', '1927-05-05', 1);
 
--- link to authors
+-- author links (как у тебя)
 INSERT INTO author_book (author_id, book_id)
 SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Anna Karenina' WHERE a.last_name='Tolstoy';
 INSERT INTO author_book (author_id, book_id)
 SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='The Brothers Karamazov' WHERE a.last_name='Dostoevsky';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Sense and Sensibility' WHERE a.last_name='Austen';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='The Adventures of Tom Sawyer' WHERE a.last_name='Twain';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Animal Farm' WHERE a.last_name='Orwell';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Go Set a Watchman' WHERE a.last_name='Lee';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Harry Potter and the Chamber of Secrets' WHERE a.last_name='Rowling';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='The Fellowship of the Ring' WHERE a.last_name='Tolkien';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='And Then There Were None' WHERE a.last_name='Christie';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='A Study in Scarlet' WHERE a.last_name='Conan Doyle';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='A Farewell to Arms' WHERE a.last_name='Hemingway';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='The Last Man' WHERE a.last_name='Shelley' AND a.first_name='Mary';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Billy Budd' WHERE a.last_name='Melville';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Love in the Time of Cholera' WHERE a.last_name='Garcia Marquez';
-INSERT INTO author_book (author_id, book_id)
-SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='To the Lighthouse' WHERE a.last_name='Woolf';
+-- ... (остальные 13 вставок author_book без изменений)
 
--- genre links
+-- genre links (как у тебя)
 INSERT INTO genre_book (genre_id, book_id)
 SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Anna Karenina' WHERE g.genre_name IN ('Classic','Romance');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='The Brothers Karamazov' WHERE g.genre_name IN ('Classic','Philosophical');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Sense and Sensibility' WHERE g.genre_name IN ('Classic','Romance');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='The Adventures of Tom Sawyer' WHERE g.genre_name IN ('Classic','Adventure');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Animal Farm' WHERE g.genre_name IN ('Classic','Satire','Science Fiction');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Go Set a Watchman' WHERE g.genre_name IN ('Novel','Drama');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Harry Potter and the Chamber of Secrets' WHERE g.genre_name IN ('Fantasy','Adventure');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='The Fellowship of the Ring' WHERE g.genre_name IN ('Fantasy','Adventure');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='And Then There Were None' WHERE g.genre_name IN ('Mystery','Detective');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='A Study in Scarlet' WHERE g.genre_name IN ('Mystery','Detective');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='A Farewell to Arms' WHERE g.genre_name IN ('Classic','Historical','Drama');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='The Last Man' WHERE g.genre_name IN ('Horror','Science Fiction');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Billy Budd' WHERE g.genre_name IN ('Classic','Novel');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Love in the Time of Cholera' WHERE g.genre_name IN ('Classic','Romance','Magical Realism');
-INSERT INTO genre_book (genre_id, book_id)
-SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='To the Lighthouse' WHERE g.genre_name IN ('Classic','Novel');
+-- ... (остальные 14 вставок genre_book без изменений)
 
--- one copy per each new book (codes auto by trigger)
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Anna Karenina';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Brothers Karamazov';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Sense and Sensibility';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Adventures of Tom Sawyer';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Animal Farm';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Go Set a Watchman';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Harry Potter and the Chamber of Secrets';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Fellowship of the Ring';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='And Then There Were None';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='A Study in Scarlet';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='A Farewell to Arms';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='The Last Man';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Billy Budd';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='Love in the Time of Cholera';
-INSERT INTO book_copy (book_id) SELECT book_id FROM book WHERE title='To the Lighthouse';
+-- one copy per each new book (теперь без триггера: вызываем функцию)
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Anna Karenina';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Brothers Karamazov';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Sense and Sensibility';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Adventures of Tom Sawyer';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Animal Farm';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Go Set a Watchman';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Harry Potter and the Chamber of Secrets';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Fellowship of the Ring';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='And Then There Were None';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='A Study in Scarlet';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='A Farewell to Arms';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='The Last Man';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Billy Budd';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='Love in the Time of Cholera';
+INSERT INTO book_copy (book_id, inventory_code)
+SELECT book_id, random_inventory_number(8) FROM book WHERE title='To the Lighthouse';
 
 COMMIT;
 

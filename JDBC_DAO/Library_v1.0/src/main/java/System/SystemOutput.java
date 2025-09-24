@@ -3,6 +3,7 @@ package System;
 import ClassesDOJO.Author;
 import ClassesDOJO.Book;
 import ClassesDOJO.Genre;
+import ClassesDOJO.Reader;
 import System.Interfaces.Output;
 
 import java.util.List;
@@ -25,17 +26,25 @@ public class SystemOutput implements Output {
     public void printBook(Book o) {
         System.out.println(o.toString());
     }
+
     @Override
     public void printBook(List<Book> books){
+        int nRow = 1;
         if (books == null){
             printError("You have entered an empty query!");
         } else  if (books.isEmpty()) {
             printError("No books found.");
         }else {
-            for (Book book: books) {
-                printBook(book);
+            for (Book book : books) {
+                System.out.println(nRow + ". " + book.toString());
+                nRow++;
             }
         }
+    }
+
+    @Override
+    public void printReader(Reader r) {
+        System.out.println(r.toString());
     }
     @Override
     public void printGenreName(List<Genre> genres){
@@ -112,4 +121,26 @@ public class SystemOutput implements Output {
         System.out.println(menu);
         return numOfString;
     }
+    @Override
+    public int printBookInformationMenu() {
+        String menu = """
+                1. Title.
+                2. Publish date.
+                3. Count in stock.""";
+        System.out.println(menu);
+        return 3;
+    }
+
+    @Override
+    public int printReaderMenu() {
+        String menu= """
+                1. Search by ID.
+                2. ADD new a reader.
+                3. UPDATE a reader.
+                4. DELETE a reader.
+                5. Return to the main menu.""";
+        System.out.println(menu);
+        return 5;
+    }
+
 }
