@@ -9,5 +9,11 @@ public interface AuthorDao {
     List<Author> getAllAuthors();
     Author createAuthor(Author blank);
     void addNewDataToAuthorBook(long authorId, long bookId);
+    List<Author> getAuthorByFirstName(String firstName, boolean isFull);
+    List<Author> getAuthorByLastName(String lastName, boolean isFull);
+    List<Author> getAuthorByBookTitle(String title, boolean isFull);
+    void deleteAuthor(Author author);
+    void updateAuthor(Author author);
+
 
 }

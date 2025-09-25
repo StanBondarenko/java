@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import static java.lang.System.in;
+import static java.lang.System.out;
 
 public class SystemOutput implements Output {
     //System methods
@@ -26,7 +27,6 @@ public class SystemOutput implements Output {
     public void printBook(Book o) {
         System.out.println(o.toString());
     }
-
     @Override
     public void printBook(List<Book> books){
         int nRow = 1;
@@ -41,7 +41,6 @@ public class SystemOutput implements Output {
             }
         }
     }
-
     @Override
     public void printReader(Reader r) {
         System.out.println(r.toString());
@@ -61,7 +60,23 @@ public class SystemOutput implements Output {
         }
         return authors.size();
     }
+    @Override
+    public void printAllAuthors(List<Author> authors) {
+        int num=1;
+        for (Author a: authors){
+            out.println(num+". "+a.getAuthorFirstName()+" "+a.getAuthorLastName()+" {"+a.getBirthday()+"<->"+a.getDeathDate()+"}");
+            num++;
+        }
+    }
 
+    @Override
+    public void printFullNameAllReaders(List<Reader> readers) {
+        int row = 1;
+        for (Reader r: readers){
+            out.println(row+". "+r.getReaderFirstName()+" "+r.getReaderLastName());
+            row++;
+        }
+    }
     @Override
     public void printLogo(){
         System.out.println("""
@@ -130,7 +145,6 @@ public class SystemOutput implements Output {
         System.out.println(menu);
         return 3;
     }
-
     @Override
     public int printReaderMenu() {
         String menu= """
@@ -142,5 +156,44 @@ public class SystemOutput implements Output {
         System.out.println(menu);
         return 5;
     }
+    @Override
+    public int printReaderInformationMenu() {
+        String menu = """
+                1. First name.
+                2. Last name.
+                3. Address.
+                4. Phone number.
+                5. E-Mail.""";
+        out.println(menu);
+        return 5;
+    }
+    @Override
+    public int printAuthorMenu() {
+        String menu = """
+                1. List of authors.
+                2. Search for an author by first name.
+                3. Search for an author by last name.
+                4. Search for an author by book title.
+                5. ADD new author.
+                6. UPDATE author.
+                7. DELETE author.
+                8. Return to the main menu.""";
+        out.println(menu);
+        return 8;
+    }
+    @Override
+    public int printAuthorInformationMenu() {
+        String menu= """
+                1. First name.
+                2. Last name.
+                3. Birthday.
+                4. Death day.""";
+        out.println(menu);
+        return 4;
+    }
+
+
+
+
 
 }

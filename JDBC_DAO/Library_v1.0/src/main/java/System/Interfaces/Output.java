@@ -20,4 +20,9 @@ public interface Output {
     void printReader(Reader r);
     void printGenreName(List<Genre> genres);
     int printAuthorsFullName(List<Author> authors);
+    void printFullNameAllReaders(List<Reader> readers);
+    int printReaderInformationMenu();
+    int printAuthorMenu();
+    void printAllAuthors(List<Author> authors);
+    int printAuthorInformationMenu();
 }

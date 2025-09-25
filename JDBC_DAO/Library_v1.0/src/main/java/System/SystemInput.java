@@ -17,7 +17,7 @@ public class SystemInput implements Input {
 
     @Override
     public void pause() {
-        System.out.println("Press Inter to continue");
+        System.out.println("Press Enter to continue");
         scr.nextLine();
     }
 }

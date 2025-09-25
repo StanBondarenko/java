@@ -9,8 +9,16 @@ public class Reader {
     private String eMail;
     public Reader(){
     }
-
     public Reader(String readerFirstName, String readerLastName, String address, String phoneNumber, String eMail) {
+        this.readerFirstName = readerFirstName;
+        this.readerLastName = readerLastName;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.eMail = eMail;
+    }
+
+    public Reader(long id, String readerFirstName, String readerLastName, String address, String phoneNumber, String eMail) {
+        this.id = id;
         this.readerFirstName = readerFirstName;
         this.readerLastName = readerLastName;
         this.address = address;

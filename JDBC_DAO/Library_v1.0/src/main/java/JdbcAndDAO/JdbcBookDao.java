@@ -50,17 +50,15 @@ public class JdbcBookDao implements BookDao {
         }
     }
     @Override
-    public List<Book> getBookByTile(String title) {
-        if (title.isEmpty()){
-            return null;
-        }
-        title= "%"+title+"%";
+    public List<Book> getBookByTile(String title, boolean isFull) {
+        title=isFull?title : "%"+title+"%";
         String query= """
                 SELECT *
                 FROM book
                 WHERE title ILIKE ?""";
         try {
-            return jdbcTemplate.query(query,mapper,title);
+            List<Book> authors= jdbcTemplate.query(query,mapper,title);
+            return authors.isEmpty()? null: authors;
         }catch (EmptyResultDataAccessException e){
             throw new DaoException("Unable to connect to server or database", e);
         }catch (DataIntegrityViolationException e) {

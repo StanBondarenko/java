@@ -36,6 +36,93 @@ public class JdbcAuthorDao implements AuthorDao {
         }
     }
     @Override
+    public List<Author> getAuthorByFirstName(String firstName, boolean isFull) {
+        firstName=  isFull ? firstName : "%"+firstName+"%";
+        String query = """
+                SELECT *
+                FROM author
+                WHERE first_name ILIKE ?""";
+        try {
+            List<Author> authors= jdbcTemplate.query(query,mapper,firstName);
+            return authors.isEmpty() ? null: authors;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        }
+    }
+    @Override
+    public List<Author> getAuthorByLastName(String lastName, boolean isFull) {
+        lastName=  isFull ? lastName : "%"+lastName+"%";
+        String query = """
+                SELECT *
+                FROM author
+                WHERE last_name ILIKE  ?""";
+        try {
+            List<Author> authors= jdbcTemplate.query(query,mapper,lastName);
+            return authors.isEmpty() ? null: authors;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        }
+    }
+    @Override
+    public List<Author> getAuthorByBookTitle(String title, boolean isFull) {
+        title=isFull?title:"%"+title+"%";
+        String query = """
+                SELECT author_id, first_name, last_name, birthday, death_day
+                	FROM author
+                	JOIN author_book USING(author_id)
+                	JOIN book USING(book_id)
+                	WHERE title ILIKE ?""";
+        try {
+            List<Author> authors=jdbcTemplate.query(query,mapper,title);
+            return authors.isEmpty() ? null: authors;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        }
+    }
+
+    @Override
+    public void deleteAuthor(Author author) {
+        String deleteBA = """
+                DELETE FROM author_book
+                WHERE author_id = ?""";
+        String deleteAuthor= """
+                DELETE FROM author
+                WHERE author_id = ?""";
+        try {
+            jdbcTemplate.update(deleteBA,author.getId());
+            jdbcTemplate.update(deleteAuthor,author.getId());
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to server or database", e);
+        }catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data Integrity Violation", e);
+        }
+    }
+
+    @Override
+    public void updateAuthor(Author author) {
+        String query= """
+                UPDATE author
+                SET first_name=?, last_name=?, birthday=?, death_day=?
+                WHERE author_id=?""";
+        try {
+            int row = jdbcTemplate.update(query,author.getAuthorFirstName(),author.getAuthorLastName(),author.getBirthday(),author.getDeathDate(),author.getId());
+            if(row==0){
+                throw new DaoException("Zero rows affected, expected at least one");
+            }
+        }catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
+        }
+    }
+
+    @Override
     public List<Author> getAllAuthors() {
         String query = """
                 SELECT *
@@ -48,7 +135,6 @@ public class JdbcAuthorDao implements AuthorDao {
             throw new DaoException("Data Integrity Violation", e);
         }
     }
-
     @Override
     public Author createAuthor(Author blank) {
         String query = """
@@ -64,7 +150,6 @@ public class JdbcAuthorDao implements AuthorDao {
             throw new DaoException("Data Integrity Violation", e);
         }
     }
-
     @Override
     public void addNewDataToAuthorBook(long authorId, long bookId) {
         String query = """
@@ -78,6 +163,9 @@ public class JdbcAuthorDao implements AuthorDao {
             throw new DaoException("Data Integrity Violation", e);
         }
     }
+
+
+
 
 
 }

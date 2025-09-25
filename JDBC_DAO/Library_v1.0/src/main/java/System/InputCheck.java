@@ -72,6 +72,7 @@ public class InputCheck implements CheckChoice {
         }
         }
     }
+    @Override
     public boolean isWordsOnly(String input){
       if(input.matches("[a-zA-Z]+")){
           return true;
