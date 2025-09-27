@@ -28,7 +28,7 @@ public class JdbcBookDao implements BookDao {
                 WHERE book_id=?""";
         try{
             List<Book> books = jdbcTemplate.query(query,mapper,id);
-            return books.isEmpty() ? null: books.getFirst();
+            return books.isEmpty() ? null: books.get(0);
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to server or database", e);
         }catch (DataIntegrityViolationException e) {
@@ -121,7 +121,6 @@ public class JdbcBookDao implements BookDao {
             throw new DaoException("Data Integrity Violation", e);
         }
     }
-
     @Override
     public void updateBook(Book blankBook) {
     String query = """
@@ -139,7 +138,6 @@ public class JdbcBookDao implements BookDao {
         throw new DaoException("Data integrity violation", e);
     }
     }
-
     @Override
     public void deleteBook(Book bookForDelete) {
         long id = bookForDelete.getId();

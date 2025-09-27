@@ -26,7 +26,7 @@ public class JdbcReaderDao implements ReaderDao {
                 WHERE reader_id = ?""";
         try {
             List<Reader> readers = jdbcTemplate.query(query,mapper,id);
-            return readers.isEmpty()? null: readers.getFirst();
+            return readers.isEmpty()? null: readers.get(0);
         }catch (CannotGetJdbcConnectionException e) {
             throw new DaoException("Unable to connect to server or database", e);
         } catch (DataIntegrityViolationException e) {

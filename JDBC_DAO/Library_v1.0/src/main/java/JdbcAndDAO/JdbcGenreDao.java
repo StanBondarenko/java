@@ -45,6 +45,4 @@ public class JdbcGenreDao implements GenreDao {
             throw new DaoException("Data Integrity Violation", e);
         }
     }
-
-
 }

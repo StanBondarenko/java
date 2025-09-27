@@ -28,7 +28,7 @@ public class JdbcAuthorDao implements AuthorDao {
                 WHERE author_id=?""";
         try {
             List<Author> authors= jdbcTemplate.query(query,mapper,id);
-            return authors.isEmpty() ? null: authors.getFirst();
+            return authors.isEmpty() ? null: authors.get(0);
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to server or database", e);
         }catch (DataIntegrityViolationException e) {

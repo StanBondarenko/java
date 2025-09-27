@@ -13,7 +13,8 @@ CREATE TABLE author (
 -- Genre
 CREATE TABLE genre (
   genre_id    serial PRIMARY KEY,
-  genre_name  varchar(50) NOT NULL
+  genre_name  varchar(50) NOT NULL,
+  CONSTRAINT uq_genre_name UNIQUE (genre_name)
 );
 
 -- books
@@ -21,7 +22,8 @@ CREATE TABLE book (
   book_id      serial PRIMARY KEY,
   title        varchar(100) NOT NULL,
   publish_date date         NOT NULL,
-  count_stock  int          NOT NULL DEFAULT 0
+  count_stock  int          NOT NULL DEFAULT 0,
+   CONSTRAINT chk_book_stock CHECK (count_stock >= 0)
 );
 
 -- Readers
@@ -31,7 +33,8 @@ CREATE TABLE reader (
   last_name    varchar(100) NOT NULL,
   address      varchar(100) NOT NULL,
   phone_number varchar(50)  NOT NULL,
-  e_mail       varchar(254) NOT NULL
+  e_mail       varchar(254) NOT NULL,
+  CONSTRAINT uq_e_mail UNIQUE (e_mail)
 );
 
 -- Book copies (physical inventory)
@@ -68,14 +71,14 @@ CREATE TABLE author_book (
   FOREIGN KEY (book_id)   REFERENCES book(book_id)
 );
 
--- ================== SIMPLE FUNCTION: random numeric code ==================
+-- random
 CREATE OR REPLACE FUNCTION random_inventory_number(n int DEFAULT 8)
 RETURNS text AS $$
 DECLARE
   result text := '';
   i int;
 BEGIN
-  -- складываем n случайных цифр
+
   FOR i IN 1..n LOOP
     result := result || trunc(random()*10)::int;
   END LOOP;
@@ -215,7 +218,7 @@ SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='One Hundred Ye
 INSERT INTO genre_book (genre_id, book_id)
 SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Mrs Dalloway' WHERE g.genre_name IN ('Classic','Novel');
 
--- ---- BOOK_COPY (теперь сразу с инвентарными кодами)
+-- ---- BOOK_COPY
 INSERT INTO book_copy (book_id, inventory_code)
 SELECT book_id, random_inventory_number(8) FROM book WHERE title='War and Peace';
 INSERT INTO book_copy (book_id, inventory_code)
@@ -277,10 +280,6 @@ VALUES (
    ORDER BY bc.copy_id LIMIT 1),
   '2025-08-03 09:00+00','2025-08-17 09:00+00',NULL
 );
-
--- ... (оставшиеся INSERT INTO loan из твоего блока без изменений)
--- Чтобы не раздувать ответ, вставь сюда остальные твои 16 вставок loan как есть.
-
 COMMIT;
 
 --- More data
@@ -303,19 +302,19 @@ INSERT INTO book (title, publish_date, count_stock) VALUES
 ('Love in the Time of Cholera', '1985-03-05', 1),
 ('To the Lighthouse', '1927-05-05', 1);
 
--- author links (как у тебя)
+-- author links
 INSERT INTO author_book (author_id, book_id)
 SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='Anna Karenina' WHERE a.last_name='Tolstoy';
 INSERT INTO author_book (author_id, book_id)
 SELECT a.author_id, b.book_id FROM author a JOIN book b ON b.title='The Brothers Karamazov' WHERE a.last_name='Dostoevsky';
--- ... (остальные 13 вставок author_book без изменений)
 
--- genre links (как у тебя)
+
+-- genre links 
 INSERT INTO genre_book (genre_id, book_id)
 SELECT g.genre_id, b.book_id FROM genre g JOIN book b ON b.title='Anna Karenina' WHERE g.genre_name IN ('Classic','Romance');
--- ... (остальные 14 вставок genre_book без изменений)
 
--- one copy per each new book (теперь без триггера: вызываем функцию)
+
+-- one copy per each new book 
 INSERT INTO book_copy (book_id, inventory_code)
 SELECT book_id, random_inventory_number(8) FROM book WHERE title='Anna Karenina';
 INSERT INTO book_copy (book_id, inventory_code)
@@ -349,7 +348,6 @@ SELECT book_id, random_inventory_number(8) FROM book WHERE title='To the Lightho
 
 COMMIT;
 
--- ---- СИНХРОНИЗАЦИЯ count_stock ПО ФАКТУ ----
 UPDATE book b
 SET count_stock = c.cnt
 FROM (SELECT book_id, COUNT(*) AS cnt FROM book_copy GROUP BY book_id) c
