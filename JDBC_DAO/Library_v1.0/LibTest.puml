@@ -1,0 +1,88 @@
+@startuml
+class JdbcGenreDaoTest {
+- JdbcGenreDao dao
+- Genre genreId1
++ void setup()
++ void getAllGenre()
++ void assertGenreEquals(Genre,Genre)
+}
+
+
+class JdbcBookDaoTest {
+- JdbcBookDao dao
+- Book bookId1
++ void setup()
++ void getBookById_test_invalid_id()
++ void getBookById_test_valid_id()
++ void getAllBooks_test()
++ void getBookByTitle_test_invalid_title()
++ void getBookByTitle_test_valid_title()
++ void getBookByAuthorFullName_test()
++ void createBook_test()
++ void updateBook_test()
++ void deleteBook_test()
++ void assertBookMatch(Book,Book)
+}
+
+
+class JdbcReaderDaoTest {
+- JdbcReaderDao dao
+- Reader readerId1
++ void setup()
++ void getReaderById_test_invalid_data()
++ void getReaderById_test_valid_data()
++ void getAllReaders_test()
++ void createNewReader_test()
++ void updateReader_test()
++ void deleteReader_test()
++ void assertReaderEquels(Reader,Reader)
+}
+
+
+class JdbcAuthorDaoTest {
+- JdbcAuthorDao dao
+- Author authorId1
++ void setup()
++ void getAuthorById_test_with_invalid_id()
++ void getAuthorById_test_with_valid_id()
++ void getAuthorByFirstName_test_with_invalid_name()
++ void getAuthorByFirstName_test_with_valid_name()
++ void getAuthorByLastName_test_with_invalid_Last_name()
++ void getAuthorByLastName_test_with_valid_Last_name()
++ void getAuthorByTitleBook_test_with_invalid_title()
++ void getAuthorByTitleBook_test_with_valid_title()
++ void deleteAuthor_test()
++ void updateAuthor_Test()
++ void getAllAuthors_Test()
++ void createAuthor_Test()
+- void assertAuthorsEquals(Author,Author,String)
+}
+
+
+abstract class BaseDaoTest {
+# DataSource dataSource
++ void rollback()
+}
+
+
+class TestingDatabaseConfig {
+- {static} String DB_HOST
+- {static} String DB_PORT
+- {static} String DB_NAME
+- {static} String DB_USERNAME
+- {static} String DB_PASSWORD
+- SingleConnectionDataSource adminDataSource
+- JdbcTemplate adminJdbcTemplate
++ void setup()
++ DataSource dataSource()
++ void cleanup()
+}
+
+
+
+
+BaseDaoTest <|-- JdbcGenreDaoTest
+BaseDaoTest <|-- JdbcBookDaoTest
+BaseDaoTest <|-- JdbcReaderDaoTest
+BaseDaoTest <|-- JdbcAuthorDaoTest
+@enduml
