@@ -1,0 +1,364 @@
+@startuml
+' Компоновка и компактность
+top to bottom direction
+skinparam linetype ortho
+skinparam nodesep 20
+skinparam ranksep 20
+skinparam classAttributeIconSize 0
+
+package "System" {
+  class Application {
+    ~ LibraryController controller
+    + {static} void main(String[])
+    + void run()
+  }
+
+  package "Interfaces" {
+    interface Output {
+      ~ void print(String)
+      ~ void printError(String)
+      ~ void printLogo()
+      ~ int printMainMenu()
+      ~ int printBookMenu()
+      ~ int printBookInformationMenu()
+      ~ int printReaderMenu()
+      ~ void printBook(Book)
+      ~ void printBook(List<Book>)
+      ~ void printReader(Reader)
+      ~ void printGenreName(List<Genre>)
+      ~ int printAuthorsFullName(List<Author>)
+      ~ void printFullNameAllReaders(List<Reader>)
+      ~ int printReaderInformationMenu()
+      ~ int printAuthorMenu()
+      ~ void printAllAuthors(List<Author>)
+      ~ int printAuthorInformationMenu()
+    }
+
+    interface Input {
+      ~ String getInput()
+      ~ String promtChoice(String)
+      ~ void pause()
+    }
+
+    interface CheckChoice {
+      ~ boolean isCorrectNavigation(String,int)
+      ~ int checkIfAuthorIsNew(String,int)
+      ~ boolean isCorrectDateFormat(String)
+      ~ boolean isCorrectInt(String)
+      ~ boolean isYesOrNo(String)
+      ~ boolean isWordsOnly(String)
+      ~ boolean isCorrectPhoneNumber(String)
+      ~ boolean hasNotSpecialCharacters(String)
+      ~ boolean isCorrectEmail(String)
+    }
+  }
+
+  class BlankMaker {
+    - Input input
+    - CheckChoice check
+    - Output out
+    + Book takeInfoForNewBook()
+    + List<Genre> takeInfoForGenre(List<Genre>)
+    + Author takeAuthorInfoForNewBook(List<Author>)
+    + Book takeBookForUpdate(List<Book>)
+    + Book takeInfoForBookUpdate(Book)
+    + Author takeInfoForNewAuthor()
+    + Author takeAuthorForUpdate(List<Author>)
+    + Author takeInfoForAuthorUpdate(Author)
+    + Reader takeInfoForNewReader()
+    + Reader takeReaderForUpdate(List<Reader>)
+    + Reader takeInfoForUpdateReader(Reader)
+  }
+
+  class SystemInput {
+    - Scanner scr
+    + String getInput()
+    + String promtChoice(String)
+    + void pause()
+  }
+
+  class SystemOutput {
+    + void print(String)
+    + void printError(String)
+    + void printBook(Book)
+    + void printBook(List<Book>)
+    + void printReader(Reader)
+    + void printGenreName(List<Genre>)
+    + int printAuthorsFullName(List<Author>)
+    + void printAllAuthors(List<Author>)
+    + void printFullNameAllReaders(List<Reader>)
+    + void printLogo()
+    + int printMainMenu()
+    + int printBookMenu()
+    + int printBookInformationMenu()
+    + int printReaderMenu()
+    + int printReaderInformationMenu()
+    + int printAuthorMenu()
+    + int printAuthorInformationMenu()
+  }
+
+  class InputCheck {
+    ~ Output out
+    ~ Input input
+    + boolean isCorrectNavigation(String,int)
+    + int checkIfAuthorIsNew(String,int)
+    + boolean isCorrectDateFormat(String)
+    + boolean isCorrectInt(String)
+    + boolean isYesOrNo(String)
+    + boolean isWordsOnly(String)
+    + boolean isCorrectPhoneNumber(String)
+    + boolean hasNotSpecialCharacters(String)
+    + boolean isCorrectEmail(String)
+  }
+
+  class Connector {
+    - BasicDataSource dataSource
+    + BasicDataSource getDataSource()
+  }
+
+  class LibraryController {
+    ~ Output out
+    ~ Input input
+    ~ CheckChoice check
+    ~ Connector connect
+    ~ BookDao jdbcBookDao
+    ~ GenreDao jdbcGenreDao
+    ~ AuthorDao jdbcAuthorDao
+    ~ ReaderDao jdbcReaderDao
+    ~ BlankMaker blank
+    + void mainMenuNavigation()
+    - boolean navigationMain(String)
+    - boolean navigationBook(String)
+    - boolean navigationReader(String)
+    - boolean navigationAuthor(String)
+    - void deleteGenreIfEqual(List<Genre>)
+  }
+
+' === RowMappers под System ===
+package "RowMappers" {
+  class BookRowMapper {
+    + Book mapRow(ResultSet, int)
+  }
+
+  class AuthorRowMapper {
+    + Author mapRow(ResultSet, int)
+  }
+
+  class GenreRowMapper {
+    + Genre mapRow(ResultSet, int)
+  }
+
+  class ReaderRowMapper {
+    + Reader mapRow(ResultSet, int)
+  }
+
+  class LoanRowMapper {
+    + Loan mapRow(ResultSet, int)
+  }
+}
+
+package "InterfaceDAO" {
+  interface AuthorDao {
+    ~ Author getAuthorById(int)
+    ~ List<Author> getAllAuthors()
+    ~ Author createAuthor(Author)
+    ~ void addNewDataToAuthorBook(long,long)
+    ~ List<Author> getAuthorByFirstName(String,boolean)
+    ~ List<Author> getAuthorByLastName(String,boolean)
+    ~ List<Author> getAuthorByBookTitle(String,boolean)
+    ~ void deleteAuthor(Author)
+    ~ void updateAuthor(Author)
+  }
+
+  interface GenreDao {
+    ~ List<Genre> getAllGenre()
+    ~ void addGenreToGenreBook(long,long)
+  }
+
+  interface BookDao {
+    ~ Book getBookById(int)
+    ~ List<Book> getAllBooks()
+    ~ List<Book> getBookByTile(String,boolean)
+    ~ List<Book> getBookByAuthorFullName(String,String)
+    ~ Book createBook(Book)
+    ~ void createBookCopy(Book)
+    ~ void updateBook(Book)
+    ~ void deleteBook(Book)
+  }
+
+  interface ReaderDao {
+    ~ Reader getReaderById(int)
+    ~ Reader createNewReader(Reader)
+    ~ void updateReader(Reader)
+    ~ List<Reader> getAllReaders()
+    ~ void deleteReader(Reader)
+  }
+
+  interface LoanDao { }
+}
+
+package "JdbcAndDAO" {
+  class JdbcAuthorDao {
+    - JdbcTemplate jdbcTemplate
+    - AuthorRowMapper mapper
+    + Author getAuthorById(int)
+    + List<Author> getAuthorByFirstName(String,boolean)
+    + List<Author> getAuthorByLastName(String,boolean)
+    + List<Author> getAuthorByBookTitle(String,boolean)
+    + void deleteAuthor(Author)
+    + void updateAuthor(Author)
+    + List<Author> getAllAuthors()
+    + Author createAuthor(Author)
+    + void addNewDataToAuthorBook(long,long)
+  }
+
+  class JdbcGenreDao {
+    - JdbcTemplate jdbcTemplate
+    - GenreRowMapper mapper
+    + List<Genre> getAllGenre()
+    + void addGenreToGenreBook(long,long)
+  }
+
+  class JdbcReaderDao {
+    - JdbcTemplate jdbcTemplate
+    - ReaderRowMapper mapper
+    + Reader getReaderById(int)
+    + Reader createNewReader(Reader)
+    + void updateReader(Reader)
+    + List<Reader> getAllReaders()
+    + void deleteReader(Reader)
+  }
+
+  class JdbcBookDao {
+    - JdbcTemplate jdbcTemplate
+    - BookRowMapper mapper
+    + Book getBookById(int)
+    + List<Book> getAllBooks()
+    + List<Book> getBookByTile(String,boolean)
+    + List<Book> getBookByAuthorFullName(String,String)
+    + Book createBook(Book)
+    + void createBookCopy(Book)
+    + void updateBook(Book)
+    + void deleteBook(Book)
+  }
+
+  class JdbcLoanDao {
+    - JdbcTemplate jdbcTemplate
+  }
+}
+
+package "ClassesDOJO" {
+  class Book {
+    - long id
+    - String title
+    - LocalDate publishDate
+    - int countStock
+    + long getId()
+    + void setId(long)
+    + String getTitle()
+    + void setTitle(String)
+    + LocalDate getPublishDate()
+    + void setPublishDate(LocalDate)
+    + int getCountStock()
+    + void setCountStock(int)
+    + String toString()
+  }
+
+  class Author {
+    - long id
+    - String authorFirstName
+    - String authorLastName
+    - LocalDate birthday
+    - LocalDate deathDate
+    + long getId()
+    + void setId(long)
+    + String getAuthorFirstName()
+    + void setAuthorFirstName(String)
+    + String getAuthorLastName()
+    + void setAuthorLastName(String)
+    + LocalDate getBirthday()
+    + void setBirthday(LocalDate)
+    + LocalDate getDeathDate()
+    + void setDeathDate(LocalDate)
+    + String toString()
+    + boolean equals(Object)
+    + int hashCode()
+  }
+
+  class Genre {
+    - long id
+    - String genreName
+    + long getId()
+    + void setId(long)
+    + String getGenreName()
+    + void setGenreName(String)
+    + boolean equals(Object)
+    + int hashCode()
+  }
+
+  class Reader {
+    - long id
+    - String readerFirstName
+    - String readerLastName
+    - String address
+    - String phoneNumber
+    - String eMail
+    + long getId()
+    + void setId(long)
+    + String getReaderFirstName()
+    + void setReaderFirstName(String)
+    + String getReaderLastName()
+    + void setReaderLastName(String)
+    + String getAddress()
+    + void setAddress(String)
+    + String getPhoneNumber()
+    + void setPhoneNumber(String)
+    + String geteMail()
+    + void seteMail(String)
+    + String toString()
+  }
+
+  class Loan {
+    - long loanId
+    - long readerId
+    - long copyId
+    - OffsetDateTime loanedAt
+    - OffsetDateTime dueAt
+    - OffsetDateTime returnedAt
+    + long getLoanId()
+    + void setLoanId(long)
+    + long getReaderId()
+    + void setReaderId(long)
+    + long getCopyId()
+    + void setCopyId(long)
+    + OffsetDateTime getLoanedAt()
+    + void setLoanedAt(OffsetDateTime)
+    + OffsetDateTime getDueAt()
+    + void setDueAt(OffsetDateTime)
+    + OffsetDateTime getReturnedAt()
+    + void setReturnedAt(OffsetDateTime)
+  }
+}
+
+package "Exception" {
+  class DaoException
+}
+
+' ===== Связи =====
+org.springframework.jdbc.core.RowMapper <|.. System.RowMappers.BookRowMapper
+org.springframework.jdbc.core.RowMapper <|.. System.RowMappers.AuthorRowMapper
+org.springframework.jdbc.core.RowMapper <|.. System.RowMappers.GenreRowMapper
+org.springframework.jdbc.core.RowMapper <|.. System.RowMappers.ReaderRowMapper
+org.springframework.jdbc.core.RowMapper <|.. System.RowMappers.LoanRowMapper
+
+InterfaceDAO.AuthorDao <|.. JdbcAndDAO.JdbcAuthorDao
+InterfaceDAO.GenreDao  <|.. JdbcAndDAO.JdbcGenreDao
+InterfaceDAO.ReaderDao <|.. JdbcAndDAO.JdbcReaderDao
+InterfaceDAO.BookDao   <|.. JdbcAndDAO.JdbcBookDao
+
+Exception.RuntimeException <|-- Exception.DaoException
+
+System.Interfaces.Input  <|.. System.SystemInput
+System.Interfaces.Output <|.. System.SystemOutput
+System.Interfaces.CheckChoice <|.. System.InputCheck
+@enduml

@@ -1,4 +1,4 @@
--- DELETE
+ -- DELETE
 DROP TABLE IF EXISTS loan, book_copy, author_book, genre_book, reader, book, author, genre CASCADE;
 
 -- Author
